@@ -1,0 +1,302 @@
+/* ═══════════════════════════════════════
+   Patients.css
+═══════════════════════════════════════ */
+
+/* --- PAGE HEADER --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.page-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* --- FILTER BAR --- */
+.filter-bar {
+    background: white;
+    padding: 20px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+.filter-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+}
+.search-input {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: var(--bg);
+}
+.filter-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: var(--bg);
+}
+.btn-filter {
+    background: #0d6efd; /* Blue filter button from your design */
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    flex: 0.5;
+}
+
+/* --- TABLE CONTAINER --- */
+.table-header-row {
+    background: white;
+    padding: 15px 20px;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.table-header-row h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text);
+}
+.patient-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+}
+.patient-table th {
+    background: #f9fafb;
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+}
+.patient-table td {
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+}
+.patient-id-text {
+    color: var(--green);
+    font-weight: 700;
+}
+.action-btns {
+    display: flex;
+    gap: 6px;
+}
+.btn-action {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.btn-action.view { color: #3b82f6; }
+.btn-action.edit { color: #eab308; }
+.btn-action.delete { color: #ef4444; }
+.btn-action:hover { background: var(--bg); }
+
+/* --- NEW PATIENT FORM --- */
+.form-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 24px;
+}
+.form-section {
+    margin-bottom: 30px;
+}
+.form-section-header {
+    background: var(--green-mid);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.form-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: 2fr 1fr 1.5fr 1.5fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.input-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+.form-input {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+.form-input:disabled {
+    background: var(--bg);
+    color: var(--muted);
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+
+/* View Patient & Delete Patient Styles */
+.view-grid {
+    display: grid;
+    grid-template-columns: 1fr 2.5fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.profile-card, .history-card, .actions-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+}
+
+/* Profile Header (Initials & Name) */
+.profile-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.profile-initials {
+    width: 60px; height: 60px;
+    background: var(--green);
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.profile-name h3 { margin: 0 0 6px 0; font-size: 16px; color: var(--text); }
+.profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge-id { font-size: 11px; font-weight: 700; color: var(--green); }
+.badge-tag { background: #f3f4f6; color: var(--muted); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.badge-blood { background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+
+/* Profile Details List */
+.profile-details {
+    list-style: none; padding: 0; margin: 0;
+}
+.profile-details li {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+.profile-details li:last-child { border-bottom: none; }
+.profile-details label { color: var(--muted); font-weight: 600; }
+.profile-details span { color: var(--text); font-weight: 500; }
+
+/* Actions Card */
+.actions-card { margin-top: 20px; }
+.actions-card h4 { margin: 0 0 15px 0; font-size: 14px; }
+.btn-full { width: 100%; padding: 10px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; margin-bottom: 10px; transition: opacity 0.2s; color: white;}
+.btn-full:hover { opacity: 0.9; }
+.btn-full.green { background: var(--green); }
+.btn-full.yellow { background: #eab308; }
+.btn-full.red { background: #ef4444; margin-bottom: 0; }
+
+/* History Cards */
+.history-card { margin-bottom: 20px; min-height: 250px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;}
+.history-header h4 { margin: 0; font-size: 15px; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; color: var(--muted); opacity: 0.7; }
+.empty-state svg { margin-bottom: 10px; }
+
+/* --- DELETE MODAL CARD --- */
+.delete-card-wrapper {
+    display: flex; justify-content: center; align-items: center; min-height: 60vh;
+}
+.delete-card {
+    background: white; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px;
+    text-align: center; border: 1px solid var(--border);
+}
+.delete-header {
+    background: #ef4444; color: white; padding: 15px 20px;
+    font-weight: 600; display: flex; align-items: center; gap: 10px; font-size: 14px;
+}
+.delete-body { padding: 40px 30px; }
+.delete-body h3 { margin: 15px 0 10px 0; color: var(--text); }
+.delete-body p { color: var(--muted); font-size: 14px; margin-bottom: 25px; line-height: 1.5;}
+.delete-actions { display: flex; justify-content: center; gap: 12px; }
+
+@media (max-width: 900px) {
+    .view-grid { grid-template-columns: 1fr; }
+}

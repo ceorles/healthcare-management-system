@@ -1,0 +1,311 @@
+/* ═══════════════════════════════════════
+   Appointments.css
+═══════════════════════════════════════ */
+
+/* --- PAGE HEADER --- */
+.appt-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 24px;
+}
+.appt-page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.appt-page-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* --- MAIN LAYOUT --- */
+.appointments-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+/* --- CALENDAR WIDGET --- */
+.calendar-widget {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+.calendar-header {
+    background: var(--green);
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.calendar-header h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+}
+.calendar-nav-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.calendar-nav-btn:hover { background: rgba(255,255,255,0.2); }
+
+.calendar-body { padding: 20px; }
+.calendar-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 15px;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.calendar-day:hover:not(.empty) { background: var(--bg); }
+.calendar-day.active { background: var(--green); color: white; }
+.calendar-day.empty { cursor: default; }
+.calendar-day.has-appointment { border: 2px solid var(--green-light); }
+
+/* --- QUEUE SECTION & TABLE --- */
+.queue-card {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+.queue-header {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.queue-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text);
+}
+
+/* New Self-Contained Table CSS */
+.appt-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-top: 1px solid var(--border);
+}
+.appt-table th {
+    background: #f9fafb;
+    padding: 12px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+}
+.appt-table td {
+    padding: 16px 24px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+}
+.queue-badge {
+    width: 24px; height: 24px;
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+}
+.status-select {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    background: white;
+    cursor: pointer;
+}
+
+/* Action Buttons */
+.appt-btn-action {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #3b82f6; /* Blue icon */
+}
+.appt-btn-action:hover { background: var(--bg); }
+
+/* ═══════════════════════════════════════
+   New Appointment Form Styles
+═══════════════════════════════════════ */
+
+.appt-form-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin: 0 24px 24px 24px;
+}
+.appt-form-section {
+    margin-bottom: 30px;
+}
+.appt-form-header {
+    background: var(--green-mid);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.appt-form-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.grid-cols-2 { grid-template-columns: 1fr 1fr; }
+.grid-cols-1 { grid-template-columns: 1fr; }
+
+.appt-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    
+}
+
+.appt-input-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.appt-input, .appt-select, .appt-textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+.appt-input:focus, .appt-select:focus, .appt-textarea:focus {
+    outline: none;
+    border-color: var(--green);
+}
+.appt-textarea {
+    resize: vertical;
+}
+
+.appt-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+
+/* --- SEARCHABLE DROPDOWN --- */
+.appt-search-container {
+    position: relative;
+    width: 100%;
+}
+.appt-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin-top: 4px;
+}
+.appt-search-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid var(--bg);
+    transition: background 0.2s;
+    color: var(--text);
+}
+.appt-search-option:hover {
+    background: var(--green-light);
+    color: var(--green);
+    font-weight: 600;
+}
+.appt-search-option.empty {
+    color: var(--muted);
+    font-style: italic;
+}
+.appt-search-option.empty:hover {
+    background: white;
+    color: var(--muted);
+    font-weight: normal;
+    cursor: default;
+}
+
+@media (max-width: 1200px) {
+    .appointments-layout { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .calendar-widget {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .queue-card {
+        overflow-x: auto;
+    }
+    .appt-table {
+        min-width: 700px;
+    }
+}

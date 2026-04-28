@@ -1,0 +1,321 @@
+/* ═══════════════════════════════════════
+   StaffAccounts.css
+═══════════════════════════════════════ */
+
+/* --- PAGE HEADER --- */
+.staff-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 24px 24px 0 24px;
+}
+.staff-page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.staff-page-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* Back Button */
+.btn-back {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+}
+.btn-back:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* --- FILTER BAR --- */
+.staff-filter-bar {
+    background: white;
+    padding: 20px 24px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}
+.staff-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.staff-filter-group.expand {
+    flex: 1.5;
+}
+.staff-filter-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+.staff-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.staff-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+}
+.staff-search-input {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: var(--bg);
+}
+.staff-filter-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: var(--bg);
+}
+.staff-btn-filter {
+    background: #3b82f6; 
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* --- TABLE CONTAINER --- */
+.staff-table-header {
+    background: white;
+    padding: 15px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.staff-table-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text);
+}
+.staff-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+}
+.staff-table th {
+    background: #f9fafb;
+    padding: 12px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+}
+.staff-table td {
+    padding: 16px 24px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+}
+.staff-action-btns {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+/* --- FORMS (New / Edit) --- */
+.staff-form-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin: 0 24px 24px 24px;
+}
+.staff-form-section {
+    margin-bottom: 30px;
+}
+.staff-form-header {
+    background: var(--green-mid);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.staff-form-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.grid-cols-2 { grid-template-columns: 1fr 1fr; }
+.grid-cols-1 { grid-template-columns: 1fr; }
+
+.staff-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.staff-input-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+.staff-input, .staff-select {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+.staff-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+
+/* --- VIEW PROFILE CARD (NEW DESIGN) --- */
+.staff-profile-wrapper {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: center;
+}
+.staff-profile-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden; /* Keeps the list items inside the border */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+/* Card Header (Initials & Name) */
+.staff-profile-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    border-bottom: 1px solid var(--border);
+}
+.staff-initials {
+    width: 80px; height: 80px;
+    background: var(--green);
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    font-family: var(--font-display);
+}
+.staff-profile-top h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: var(--text);
+    font-weight: 700;
+}
+.staff-badges {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.staff-username-badge {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+}
+.staff-role-badge {
+    background: #f3e8ff; 
+    color: #a855f7; 
+    padding: 4px 10px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+    font-weight: 700;
+}
+
+/* List Items */
+.staff-details-list {
+    list-style: none; padding: 0; margin: 0;
+}
+.staff-details-list li {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    padding: 16px 30px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+.staff-details-list label { color: var(--muted); font-weight: 600; }
+.staff-details-list span { color: var(--text); font-weight: 600; }
+
+/* Bottom Actions */
+.staff-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 30px;
+    background: #fdfdfd;
+}
+.btn-staff-back {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 24px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-staff-back:hover { background: var(--bg); color: var(--text); }
+.btn-staff-edit {
+    background: #eab308;
+    border: none;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn-staff-edit:hover { opacity: 0.9; }
+
+@media (max-width: 600px) {
+    .staff-details-list li {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 16px 20px;
+    }
+}

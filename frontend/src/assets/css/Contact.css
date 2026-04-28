@@ -1,0 +1,191 @@
+/* ═══════════════════════════════════════
+   Contact.css
+   Municipal Health Center of Sariaya
+═══════════════════════════════════════ */
+
+.contact-section { padding: 64px 8%; }
+.contact-section.alt { background: white; }
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-top: 40px;
+}
+
+/* ── Info Cards ── */
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.info-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: border-color .2s, box-shadow .2s;
+}
+.info-card:hover {
+  border-color: var(--green-accent);
+  box-shadow: 0 2px 10px rgba(26,107,60,.07);
+}
+.info-icon {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.info-icon svg { width: 18px; height: 18px; stroke: var(--green); stroke-width: 1.8; }
+.info-card h4 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.info-card p,
+.info-card a {
+  font-size: 13.5px;
+  color: var(--text);
+  text-decoration: none;
+  display: block;
+  line-height: 1.5;
+}
+.info-card a:hover { color: var(--green); }
+
+/* ── Emergency ── */
+.emergency-box {
+  background: var(--red);
+  color: white;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.emergency-box h4 { font-size: 13px; font-weight: 700; opacity: .9; margin-bottom: 2px; }
+.emergency-hotline {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.8rem;
+  display: block;
+  line-height: 1.1;
+}
+.emergency-box p { font-size: 12px; opacity: .8; margin-top: 4px; }
+.emergency-box .badge {
+  background: rgba(255,255,255,.2);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.emergency-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Before Visit ── */
+.before-visit {
+  background: var(--green-light);
+  border: 1px solid #c5e8d0;
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+.before-visit h4 { font-size: 14px; font-weight: 600; color: var(--green); margin-bottom: 12px; }
+.before-visit ul { padding-left: 0; list-style: none; }
+.before-visit li {
+  font-size: 13px;
+  color: #2d5a3d;
+  padding: 5px 0;
+  border-bottom: 1px solid #c5e8d0;
+  display: flex;
+  gap: 8px;
+}
+.before-visit li:last-child { border-bottom: none; }
+.before-visit-check { color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+/* ── Map ── */
+.map-container {
+  max-width: 100%;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #d4ead9;
+  min-height: 280px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+
+.map-container iframe {
+  width: 100%;
+  height: 336px;
+  border: none;
+  border-radius: 8px; /* optional for a polished look */
+}
+
+.map-container svg { opacity: .4; }
+.map-container p { font-size: 13px; text-align: center; opacity: .6; }
+.map-container a {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1.5px solid var(--green);
+  border-radius: 6px;
+  margin-top: 6px;
+  transition: all .2s;
+}
+.map-container a:hover { background: var(--green); color: white; }
+
+/* ── Hours Table ── */
+.hours-table {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.hours-table table { width: 100%; border-collapse: collapse; }
+.hours-table th {
+  background: var(--green);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 16px;
+  text-align: left;
+  letter-spacing: .5px;
+}
+.hours-table td {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.hours-table tr:last-child td { border-bottom: none; }
+.hours-table tr:nth-child(even) td { background: var(--bg); }
+.badge-open   { display: inline-block; background: #dcfce7; color: #166534; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 2px 8px; }
+.badge-closed { display: inline-block; background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 2px 8px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr; }
+  .info-cards { grid-template-columns: 1fr; }
+  .contact-section { padding: 48px 5%; }
+  .emergency-box { flex-direction: column; }
+}

@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════
+   Referrals.css
+═══════════════════════════════════════ */
+
+/* --- PAGE HEADER --- */
+.ref-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 24px 24px 0 24px;
+}
+.ref-page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.ref-page-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* --- FILTER BAR --- */
+.ref-filter-bar {
+    background: white;
+    padding: 20px 24px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}
+.ref-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ref-filter-group.expand {
+    flex: 1.5;
+}
+.ref-filter-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+.ref-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.ref-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+}
+.ref-search-input {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: var(--bg);
+}
+.ref-filter-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: var(--bg);
+}
+.ref-btn-filter {
+    background: #3b82f6; 
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* --- TABLE CONTAINER --- */
+.ref-table-header-row {
+    background: white;
+    padding: 15px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ref-table-header-row h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text);
+}
+.ref-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+}
+.ref-table th {
+    background: #f9fafb;
+    padding: 12px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+}
+.ref-table td {
+    padding: 16px 24px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+}
+.ref-code-text {
+    color: #ef4444; 
+    font-weight: 700;
+}
+
+/* --- ACTION BUTTONS --- */
+.ref-action-btns {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+.ref-btn-action {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.ref-btn-action.view { color: #3b82f6; }
+.ref-btn-action.print { color: #6b7280; }
+.ref-btn-action.edit { color: #eab308; }
+.ref-btn-action.delete { color: #ef4444; }
+.ref-btn-action:hover { background: var(--bg); }
+
+/* --- REFERRAL FORMS & VIEWS --- */
+.ref-form-wrapper { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px;}
+.ref-form-header { background: var(--green-mid); color: white; padding: 12px 20px; border-radius: 4px; font-weight: 600; font-size: 14px; margin-bottom: 20px; }
+.ref-grid { display: grid; gap: 16px; margin-bottom: 16px; }
+.ref-grid-2 { grid-template-columns: 1fr 1fr; }
+.ref-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.ref-input-group { display: flex; align-items: center; gap: 10px; }
+.ref-input-group.column { flex-direction: column; align-items: flex-start; gap: 5px;}
+.ref-input-group label { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ref-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+
+/* PE Findings Inline Row */
+.pe-findings-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+.pe-box { display: flex; align-items: center; gap: 8px; }
+.pe-box input { width: 60px; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px;}
+
+/* --- VIEW GRID --- */
+.ref-view-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+.ref-qr-card { background: white; border: 1px solid var(--border); border-radius: 8px; text-align: center; overflow: hidden; margin-bottom: 15px;}
+.ref-qr-header { padding: 12px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; justify-content: center;}
+.ref-qr-box { padding: 24px; display: flex; flex-direction: column; align-items: center; }
+.ref-info-card { background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;}
+.ref-info-section { padding: 20px; border-bottom: 1px solid var(--border); }
+.ref-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
+
+/* --- VIEW SPECIFIC CSS --- */
+.ref-view-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
+.ref-view-data-grid strong, .ref-view-details strong { margin-left: 5px; color: var(--text); }
+.ref-view-details { display: flex; flex-direction: column; gap: 15px; }
+.ref-view-pe-row { display: flex; gap: 20px; background: #f9fafb; padding: 10px; border-radius: 4px; border: 1px solid var(--border); }
+.ref-view-signature-box { margin-top: 20px; border-top: 1px dashed var(--border); padding-top: 15px; }
+
+
+/* ═══════════════════════════════════════
+   Print Slip Details (Figma Layout)
+═══════════════════════════════════════ */
+
+.print-page-wrapper {
+    background-color: var(--bg);
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+.print-document {
+    background: white;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 40px;
+    color: var(--text);
+}
+.print-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.print-header-text { text-align: center; flex: 1; }
+.print-header-text p { margin: 0; font-size: 12px; }
+.print-header-text h2 { margin: 2px 0; font-size: 18px; font-weight: 700; }
+.print-header-text h4 { margin: 5px 0 0 0; font-size: 14px; font-weight: 700; }
+.print-logo { max-width: 80px; object-fit: contain; }
+
+/* The Green Border Box around the content */
+.print-content-border { border: 2px solid var(--green); }
+.print-green-banner { background: var(--green); color: white; padding: 10px 20px; font-weight: 600; font-size: 14px; }
+.print-top-grid { display: grid; grid-template-columns: 1fr 180px; padding: 20px; border-bottom: 2px solid var(--green); }
+.print-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; font-size: 13px; }
+.print-info-item { display: flex; gap: 8px; }
+.print-info-item label { color: var(--text); }
+.print-info-item strong { color: var(--text); font-weight: 600; margin-left: 5px; }
+.print-info-item.full-width { grid-column: 1 / -1; }
+
+.print-qr-section {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border-left: 1px dashed var(--border);
+    padding-left: 20px;
+}
+.print-qr-label { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.print-qr-verify { font-size: 10px; color: var(--muted); margin-top: 10px; }
+.print-qr-code-text { color: var(--green); font-weight: 700; font-size: 12px; margin-top: 2px; }
+
+/* Medical Info Section */
+.print-medical-section { padding: 20px; display: flex; flex-direction: column; gap: 15px; font-size: 13px; }
+.print-medical-item { display: flex; gap: 8px; }
+.print-medical-item span { margin-left: 5px; }
+.print-pe-row { display: flex; align-items: center; gap: 20px; }
+.print-pe-item { display: flex; gap: 8px; }
+.print-pe-item strong { margin-left: 5px; }
+
+/* Signature Section */
+.print-signature-wrapper { display: flex; justify-content: flex-end; margin-top: 40px; }
+.print-signature-block { text-align: center; width: 250px; }
+.print-sign-line { border-bottom: 1px solid var(--text); padding-bottom: 5px; margin-bottom: 5px; font-weight: 600; font-size: 14px; min-height: 24px; }
+.print-sign-label { font-size: 12px; color: var(--muted); margin-bottom: 15px; }
+
+/* Action Buttons at the Bottom */
+.print-action-buttons { width: 100%; max-width: 800px; display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+
+/* PRINT MEDIA QUERY - Hides entire website except the slip! */
+@media print {
+    body * { visibility: hidden; }
+    .print-document, .print-document * { visibility: visible; }
+    .print-document {
+        position: absolute; left: 0; top: 0; width: 100%; max-width: 100%;
+        box-shadow: none; border: none; padding: 0; margin: 0;
+    }
+    .print-action-buttons, .ref-page-header, .dashboard-sidebar, .dashboard-mobile-header { 
+        display: none !important; 
+    }
+    .print-page-wrapper { background: white; padding: 0; }
+}
