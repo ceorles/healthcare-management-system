@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { UserCog, Clock } from 'lucide-react';
+import { Clock, ChevronLeft } from 'lucide-react';
 import '../../assets/css/Patients.css';
 
 const BARANGAYS = [
@@ -16,14 +16,23 @@ const BARANGAYS = [
 
 export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    
-    // Initialize state with the existing patient data!
+
     const [formData, setFormData] = useState({
-        first_name: patient.first_name || '', last_name: patient.last_name || '', middle_name: patient.middle_name || '',
-        date_of_birth: patient.date_of_birth || '', sex: patient.sex || 'M', civil_status: patient.civil_status || 'single',
-        contact_number: patient.contact_number || '', blood_type: patient.blood_type || '', address: patient.address || '', 
-        barangay: patient.barangay || 'Poblacion 1', emergency_contact_name: patient.emergency_contact_name || '', 
-        emergency_contact_number: patient.emergency_contact_number || '', philhealth_number: patient.philhealth_number || '', 
+        first_name: patient.first_name || '',
+        last_name: patient.last_name || '',
+        middle_name: patient.middle_name || '',
+        date_of_birth: patient.date_of_birth || '',
+        sex: patient.sex || 'M',
+        civil_status: patient.civil_status || 'single',
+        contact_number: patient.contact_number || '',
+        blood_type: patient.blood_type || '',
+        address: patient.address || '',
+        barangay: patient.barangay || 'Poblacion 1',
+        guardian_name: patient.guardian_name || '',
+        guardian_contact_info: patient.guardian_contact_info || '',
+        emergency_contact_name: patient.emergency_contact_name || '',
+        emergency_contact_number: patient.emergency_contact_number || '',
+        philhealth_number: patient.philhealth_number || '',
         allergies: patient.allergies || ''
     });
 
@@ -42,38 +51,54 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
         return age;
     };
 
-    const handleChange = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); };
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Notice this is a PUT request to the specific patient ID!
             await axios.put(`http://127.0.0.1:8000/api/patients/${patient.id}/`, formData, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
             });
             alert("Patient Updated Successfully!");
             onSaveSuccess();
         } catch (error) {
+            if (error.response?.data) {
+                const errorDetails = Object.entries(error.response.data)
+                    .map(([field, messages]) => `${field.toUpperCase()}: ${messages}`)
+                    .join('\n');
+                alert(`Error updating patient:\n\n${errorDetails}`);
+            } else {
+                alert("Error updating patient. Check fields.");
+            }
             console.error(error);
-            alert("Error updating patient. Check fields.");
         }
     };
 
     return (
-        <div>
-            <div className="page-header">
-                <div className="page-title"><UserCog size={24}/> Edit Patient</div>
+        <div className="patient-form-page">
+            <div className="page-header page-header--form">
+                <div className="page-title-row">
+                    <button type="button" className="btn-back-form" onClick={onCancel} aria-label="Go back">
+                        <ChevronLeft size={20} />
+                    </button>
+                    <h1 className="page-title">Edit Patient</h1>
+                </div>
                 <div className="page-time"><Clock size={16}/> {currentTime}</div>
             </div>
 
-            <form onSubmit={handleSubmit} className="form-container">
-                <div className="form-section">
+            <form onSubmit={handleSubmit} className="patient-form">
+
+                <div className="form-card">
                     <div className="form-section-header">Personal Information</div>
+
                     <div className="form-grid grid-3">
                         <div className="input-group"><label>Last Name</label><input type="text" name="last_name" className="form-input" required value={formData.last_name} onChange={handleChange} /></div>
                         <div className="input-group"><label>First Name</label><input type="text" name="first_name" className="form-input" required value={formData.first_name} onChange={handleChange} /></div>
                         <div className="input-group"><label>Middle Name</label><input type="text" name="middle_name" className="form-input" value={formData.middle_name} onChange={handleChange} /></div>
                     </div>
+
                     <div className="form-grid grid-4">
                         <div className="input-group"><label>Date of Birth</label><input type="date" name="date_of_birth" className="form-input" required value={formData.date_of_birth} onChange={handleChange} /></div>
                         <div className="input-group"><label>Age</label><input type="text" className="form-input" disabled value={calculateAge(formData.date_of_birth)} /></div>
@@ -88,12 +113,14 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
                             </select>
                         </div>
                     </div>
+
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" value={formData.contact_number} onChange={handleChange} /></div>
                         <div className="input-group"><label>Blood Type</label><input type="text" name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange} /></div>
                     </div>
-                    <div className="form-grid grid-2">
-                        <div className="input-group"><label>Address</label><input type="text" name="address" className="form-input" value={formData.address} onChange={handleChange} /></div>
+
+                    <div className="form-grid grid-2-address form-grid--last">
+                        <div className="input-group"><label>Address</label><input type="text" name="address" className="form-input" placeholder="City / Street / House & Lot no." value={formData.address} onChange={handleChange} /></div>
                         <div className="input-group"><label>Barangay</label>
                             <select name="barangay" className="form-input" onChange={handleChange} value={formData.barangay}>
                                 {BARANGAYS.map(b => <option key={b} value={b}>{b}</option>)}
@@ -102,21 +129,28 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
                     </div>
                 </div>
 
-                <div className="form-section" style={{ marginBottom: 0 }}>
+                <div className="form-card">
                     <div className="form-section-header">Medical & Emergency Info</div>
+
+                    <div className="form-grid grid-2">
+                        <div className="input-group"><label>Guardian&apos;s Name</label><input type="text" name="guardian_name" className="form-input" value={formData.guardian_name} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Guardian&apos;s Contact Info</label><input type="text" name="guardian_contact_info" className="form-input" value={formData.guardian_contact_info} onChange={handleChange} /></div>
+                    </div>
+
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Emergency Contact Name</label><input type="text" name="emergency_contact_name" className="form-input" value={formData.emergency_contact_name} onChange={handleChange} /></div>
                         <div className="input-group"><label>Emergency Contact Number</label><input type="text" name="emergency_contact_number" className="form-input" value={formData.emergency_contact_number} onChange={handleChange} /></div>
                     </div>
-                    <div className="form-grid grid-2">
+
+                    <div className="form-grid grid-2 form-grid--last">
                         <div className="input-group"><label>PhilHealth Number</label><input type="text" name="philhealth_number" className="form-input" value={formData.philhealth_number} onChange={handleChange} /></div>
                         <div className="input-group"><label>Known Allergies</label><input type="text" name="allergies" className="form-input" value={formData.allergies} onChange={handleChange} /></div>
                     </div>
                 </div>
 
-                <div className="form-actions">
-                    <button type="button" onClick={onCancel} className="btn-secondary" style={{ padding: '10px 20px', border: '1px solid var(--border)', color: 'var(--text)' }}>Cancel</button>
-                    <button type="submit" className="btn-primary" style={{ padding: '10px 20px' }}>Save Patient Record</button>
+                <div className="form-actions form-actions--standalone">
+                    <button type="button" onClick={onCancel} className="btn-secondary btn-form-cancel">Cancel</button>
+                    <button type="submit" className="btn-primary btn-form-save">Save Patient Record</button>
                 </div>
             </form>
         </div>

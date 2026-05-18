@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FilePlus, Clock } from 'lucide-react';
+import { BARANGAYS } from '../../constants/barangays.js';
 import '../../assets/css/Referrals.css';
 
 export default function NewReferral({ onCancel, onSaveSuccess }) {
@@ -10,7 +11,7 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
 
     const [formData, setFormData] = useState({
         patient: '', walkin_name: '', walkin_age: '', walkin_address: '', hospital_file_no: '',
-        barangay: 'Poblacion 1', referred_to: 'Sariaya Health Center', designation: 'Sariaya Municipal Health Center',
+        barangay: '', referred_to: 'Sariaya Health Center', designation: 'Sariaya Municipal Health Center',
         chief_complaint: '', brief_history: '', bp: '', pr: '', rr: '', temp: '', weight: '',
         impression: '', reason: '', services_needed: '', remarks: ''
     });
@@ -28,7 +29,7 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
         const val = e.target.value;
         if (val === "walkin") {
             setIsWalkin(true);
-            setFormData({ ...formData, patient: '', walkin_name: '', walkin_age: '', walkin_address: '', barangay: 'Poblacion 1' });
+            setFormData({ ...formData, patient: '', walkin_name: '', walkin_age: '', walkin_address: '', barangay: '' });
         } else {
             setIsWalkin(false);
             const p = patients.find(pat => pat.id.toString() === val);
@@ -57,7 +58,7 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
         }
 
         try {
-            await axios.post('http://127.0.0.1:8000/api/referrals/', formData, {
+            await axios.post('http://127.0.0.1:8000/api/referrals/', finalData, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
             });
             alert("Referral Created Successfully!");
@@ -94,7 +95,15 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
                 </div>
 
                 <div className="ref-grid ref-grid-2">
-                    <div className="ref-input-group"><label>Barangay:</label><input type="text" name="walkin_address" className="ref-input" value={formData.barangay} onChange={handleChange} disabled={!isWalkin} required /></div>
+                    <div className="ref-input-group"><label>Barangay:</label>
+                        {isWalkin ? (
+                            <select name="barangay" className="ref-input" value={formData.barangay} onChange={handleChange} required>
+                                <option value="" disabled>Select barangay</option>
+                                {BARANGAYS.map((b) => <option key={b} value={b}>{b}</option>)}
+                            </select>
+                        ) : (
+                            <input type="text" className="ref-input ref-input-readonly" value={formData.barangay} readOnly disabled />
+                        )}</div>
                     <div className="ref-input-group"><label>Referred To:</label><input type="text" name="referred_to" className="ref-input" value={formData.referred_to} onChange={handleChange} /></div>
                 </div>
 

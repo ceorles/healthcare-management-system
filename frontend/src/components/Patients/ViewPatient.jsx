@@ -47,6 +47,14 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete }) {
                             <li><label>Contact</label><span>{patient.contact_number || '----------'}</span></li>
                             <li><label>Civil Status</label><span style={{ textTransform: 'capitalize' }}>{patient.civil_status || '-----'}</span></li>
                             <li><label>Philhealth</label><span>{patient.philhealth_number || '-----------------'}</span></li>
+                            {(patient.guardian_name || patient.guardian_contact_info) && (
+                                <li><label>Guardian</label>
+                                    <span>
+                                        {patient.guardian_name || '-----'}<br/>
+                                        <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{patient.guardian_contact_info}</span>
+                                    </span>
+                                </li>
+                            )}
                             <li><label>Emergency</label>
                                 <span>
                                     {patient.emergency_contact_name || '-----'}<br/>

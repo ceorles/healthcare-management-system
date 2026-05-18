@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { List, Clock, Search, Filter, Plus, Eye, Printer, Edit, Trash2 } from 'lucide-react';
+import { List, Clock, Search, Filter, Plus, Eye, Printer, Edit, Trash2, QrCode } from 'lucide-react';
+import ReferralQRScanner from './ReferralQRScanner.jsx';
+import { parseReferralCodeFromQr } from '../../utils/patientPrefill.js';
 import '../../assets/css/Referrals.css';
 
 const BARANGAYS = [
@@ -15,10 +18,13 @@ const BARANGAYS = [
 ];
 
 export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint }) {
+    const navigate = useNavigate();
     const [referrals, setReferrals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterBarangay, setFilterBarangay] = useState('All Barangays');
     const [loading, setLoading] = useState(true);
+    const [showScanner, setShowScanner] = useState(false);
+    const [scanProcessing, setScanProcessing] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
     useEffect(() => {
@@ -42,7 +48,7 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
     };
 
     const filteredReferrals = referrals.filter(r => {
-        const searchString = `${r.patient_name_display} ${r.referral_code} ${r.urgency}`.toLowerCase();
+        const searchString = `${r.patient_name_display} ${r.referral_code} ${r.barangay} ${r.referred_to}`.toLowerCase();
         const matchesSearch = searchString.includes(searchTerm.toLowerCase());
         const matchesBarangay = filterBarangay === 'All Barangays' || r.barangay === filterBarangay;
         return matchesSearch && matchesBarangay;
@@ -54,10 +60,63 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
         return new Date(dateString).toLocaleDateString('en-US', options);
     };
 
+    const handleQrScan = useCallback(async (decodedText) => {
+        const code = parseReferralCodeFromQr(decodedText);
+        if (!code) {
+            alert('Invalid QR code. No referral code was detected.');
+            return;
+        }
+
+        setShowScanner(false);
+        setScanProcessing(true);
+
+        try {
+            const token = localStorage.getItem('access');
+            const { data } = await axios.get('http://127.0.0.1:8000/api/referrals/lookup-by-code/', {
+                params: { code },
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (data.has_registered_patient && data.patient) {
+                navigate('/admin/patients', {
+                    state: {
+                        qrRedirect: {
+                            type: 'view',
+                            patient: data.patient,
+                            referralCode: data.referral_code,
+                        },
+                    },
+                });
+                return;
+            }
+
+            navigate('/admin/patients', {
+                state: {
+                    qrRedirect: {
+                        type: 'new',
+                        prefill: {
+                            ...data.walkin_prefill,
+                            referral_code: data.referral_code,
+                            referral_id: data.referral_id,
+                        },
+                    },
+                },
+            });
+        } catch (error) {
+            if (error.response?.status === 404) {
+                setSearchTerm(code);
+                alert(`Referral "${code}" was not found in the system.`);
+            } else {
+                console.error('QR lookup failed:', error);
+                alert('Could not verify this referral QR code. Please try again.');
+            }
+        } finally {
+            setScanProcessing(false);
+        }
+    }, [navigate]);
+
     return (
-        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid var(--border)', minHeight: '80vh' }}>
-            
-            {/* Header */}
+        <div className="referrals-page">
             <div className="ref-page-header">
                 <div className="ref-page-title"><List size={24}/> Referral Records</div>
                 <div className="ref-page-time"><Clock size={16}/> {currentTime}</div>
@@ -68,7 +127,13 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                     <label>Search Referral</label>
                     <div className="ref-search-wrapper">
                         <Search size={16} className="ref-search-icon" />
-                        <input type="text" className="ref-search-input" placeholder="Name, patient id, urgency..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                        <input
+                            type="text"
+                            className="ref-search-input"
+                            placeholder="Name, patient id, urgency"
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
                     </div>
                 </div>
                 <div className="ref-filter-group">
@@ -78,20 +143,25 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                         {BARANGAYS.map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                 </div>
-                <button className="ref-btn-filter"><Filter size={16}/> Filter</button>
+                <button type="button" className="ref-btn-filter"><Filter size={16}/> Filter</button>
             </div>
 
             <div className="ref-table-header-row">
                 <h3>All Referrals ({filteredReferrals.length})</h3>
-                <button onClick={onAddNew} className="btn-primary" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px', background: '#10b981' }}>
-                    <Plus size={16} /> New Referral
-                </button>
+                <div className="ref-header-actions">
+                    <button type="button" className="ref-btn-scan" onClick={() => setShowScanner(true)} disabled={scanProcessing}>
+                        <QrCode size={16} /> {scanProcessing ? 'Processing...' : 'Scan QR Code'}
+                    </button>
+                    <button type="button" onClick={onAddNew} className="ref-btn-new">
+                        <Plus size={16} /> New Referral
+                    </button>
+                </div>
             </div>
 
-            {loading ? (
-                <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '50px' }}>Loading referral records...</p>
-            ) : (
-                <div style={{ overflowX: 'auto' }}>
+            <div className="ref-table-container">
+                {loading ? (
+                    <p className="ref-loading">Loading referral records...</p>
+                ) : (
                     <table className="ref-table">
                         <thead>
                             <tr>
@@ -99,7 +169,6 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                                 <th>PATIENT</th>
                                 <th>BARANGAY</th>
                                 <th>TO</th>
-                                <th>URGENCY</th>
                                 <th>BY</th>
                                 <th>DATE</th>
                                 <th style={{ textAlign: 'center' }}>ACTIONS</th>
@@ -107,38 +176,35 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                         </thead>
                         <tbody>
                             {filteredReferrals.length > 0 ? filteredReferrals.map(r => (
-                                <tr key={r.id} onMouseOver={(e) => e.currentTarget.style.background = 'var(--bg)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                                <tr key={r.id} className="ref-table-row">
                                     <td className="ref-code-text">{r.referral_code}</td>
-                                    <td style={{ fontWeight: 600, color: 'var(--text)' }}>{r.patient_name_display || 'Walk-in'}</td>
+                                    <td className="ref-patient-name">{r.patient_name_display || 'Walk-in'}</td>
                                     <td>{r.barangay}</td>
-                                    
-                                    {/* Truncated "TO" column */}
-                                    <td style={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={r.referred_to}>
-                                        {r.referred_to}
-                                    </td>
-                                    
-                                    <td style={{ textTransform: 'capitalize' }}>{r.urgency}</td>
+                                    <td className="ref-to-cell" title={r.referred_to}>{r.referred_to}</td>
                                     <td>{r.referred_by_name || 'Admin'}</td>
                                     <td>{formatDate(r.created_at)}</td>
-                                    
                                     <td>
                                         <div className="ref-action-btns">
-                                            <button className="ref-btn-action view" onClick={() => onView(r)} title="View"><Eye size={16}/></button>
-                                            
-                                            <button className="ref-btn-action print" onClick={() => onPrint(r)} title="Print"><Printer size={16}/></button>
-                                            
-                                            <button className="ref-btn-action edit" onClick={() => onEdit(r)} title="Edit"><Edit size={16}/></button>
-                                            <button className="ref-btn-action delete" onClick={() => onDelete(r)} title="Delete"><Trash2 size={16}/></button>
+                                            <button type="button" className="ref-btn-action view" onClick={() => onView(r)} title="View"><Eye size={16}/></button>
+                                            <button type="button" className="ref-btn-action print" onClick={() => onPrint(r)} title="Print"><Printer size={16}/></button>
+                                            <button type="button" className="ref-btn-action edit" onClick={() => onEdit(r)} title="Edit"><Edit size={16}/></button>
+                                            <button type="button" className="ref-btn-action delete" onClick={() => onDelete(r)} title="Delete"><Trash2 size={16}/></button>
                                         </div>
                                     </td>
                                 </tr>
                             )) : (
-                                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No referrals found.</td></tr>
+                                <tr><td colSpan="7" className="ref-empty">No referrals found.</td></tr>
                             )}
                         </tbody>
                     </table>
-                </div>
-            )}
+                )}
+            </div>
+
+            <ReferralQRScanner
+                isOpen={showScanner}
+                onClose={() => setShowScanner(false)}
+                onScan={handleQrScan}
+            />
         </div>
     );
 }

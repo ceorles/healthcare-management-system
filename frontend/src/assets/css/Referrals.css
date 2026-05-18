@@ -2,13 +2,41 @@
    Referrals.css
 ═══════════════════════════════════════ */
 
+/* --- REFERRALS LIST PAGE (internal scroll) --- */
+.referrals-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+    overflow: hidden;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.referrals-page .ref-page-header,
+.referrals-page .ref-filter-bar,
+.referrals-page .ref-table-header-row {
+    flex-shrink: 0;
+}
+
+.ref-table-container {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+    background: white;
+    border-top: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+}
+
 /* --- PAGE HEADER --- */
 .ref-page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding: 24px 24px 0 24px;
+    margin-bottom: 0;
+    padding: 24px 24px 20px 24px;
 }
 .ref-page-title {
     display: flex;
@@ -33,6 +61,8 @@
     display: flex;
     gap: 20px;
     align-items: flex-end;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 .ref-filter-group {
     display: flex;
@@ -87,37 +117,99 @@
     justify-content: center;
     gap: 8px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
-/* --- TABLE CONTAINER --- */
+/* --- TABLE HEADER & ACTIONS --- */
 .ref-table-header-row {
     background: white;
     padding: 15px 24px;
-    border-top: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 .ref-table-header-row h3 {
     margin: 0;
     font-size: 16px;
+    font-weight: 700;
     color: var(--text);
 }
+.ref-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.ref-btn-scan,
+.ref-btn-new {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    color: white;
+    background: var(--green);
+    transition: opacity 0.2s;
+}
+.ref-btn-scan:hover,
+.ref-btn-new:hover {
+    opacity: 0.9;
+}
+
+.ref-btn-scan:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.ref-loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 50px 24px;
+    margin: 0;
+}
+
 .ref-table {
     width: 100%;
     background: white;
     border-collapse: collapse;
 }
 .ref-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     background: #f9fafb;
     padding: 12px 24px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
     color: var(--muted);
-    border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     text-transform: uppercase;
+    box-shadow: 0 1px 0 var(--border);
+}
+.ref-table-row:hover {
+    background: var(--bg);
+}
+.ref-patient-name {
+    font-weight: 600;
+    color: var(--text);
+}
+.ref-to-cell {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ref-empty {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
 }
 .ref-table td {
     padding: 16px 24px;
@@ -153,6 +245,114 @@
 .ref-btn-action.delete { color: #ef4444; }
 .ref-btn-action:hover { background: var(--bg); }
 
+/* --- QR SCANNER MODAL --- */
+.ref-qr-scanner-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+.ref-qr-scanner-modal {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+.ref-qr-scanner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.ref-qr-scanner-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text);
+}
+.ref-qr-scanner-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+}
+.ref-qr-scanner-close:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+.ref-qr-scanner-hint {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+.ref-qr-scanner-viewport {
+    width: 100%;
+    min-height: 280px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #111;
+}
+.ref-qr-scanner-viewport video {
+    border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+    .referrals-page {
+        height: calc(100vh - 54px - 60px);
+        max-height: calc(100vh - 54px - 60px);
+    }
+
+    .ref-filter-bar {
+        flex-wrap: wrap;
+    }
+
+    .ref-btn-filter {
+        flex: 1 1 100%;
+    }
+
+    .ref-table-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ref-header-actions {
+        width: 100%;
+    }
+
+    .ref-btn-scan,
+    .ref-btn-new {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .ref-page-header,
+    .ref-filter-bar,
+    .ref-table-header-row {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .ref-table th,
+    .ref-table td {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
 /* --- REFERRAL FORMS & VIEWS --- */
 .ref-form-wrapper { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px;}
 .ref-form-header { background: var(--green-mid); color: white; padding: 12px 20px; border-radius: 4px; font-weight: 600; font-size: 14px; margin-bottom: 20px; }
@@ -163,6 +363,11 @@
 .ref-input-group.column { flex-direction: column; align-items: flex-start; gap: 5px;}
 .ref-input-group label { font-size: 12px; font-weight: 700; white-space: nowrap; }
 .ref-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+.ref-input-readonly {
+    background: var(--bg);
+    color: var(--muted);
+    cursor: not-allowed;
+}
 
 /* PE Findings Inline Row */
 .pe-findings-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }

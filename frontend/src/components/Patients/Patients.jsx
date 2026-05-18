@@ -43,7 +43,7 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete }) {
     });
 
     return (
-        <div>
+        <div className="patients-page">
             {/* Header */}
             <div className="page-header">
                 <div className="page-title"><Users size={24}/> Patient Records</div>
@@ -77,39 +77,41 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete }) {
                 </button>
             </div>
 
-            {/* Table */}
-            <table className="patient-table">
-                <thead>
-                    <tr>
-                        <th>PATIENT ID</th>
-                        <th>NAME</th>
-                        <th>AGE / SEX</th>
-                        <th>BARANGAY</th>
-                        <th>CONTACT</th>
-                        <th style={{ textAlign: 'center' }}>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredPatients.length > 0 ? filteredPatients.map(p => (
-                        <tr key={p.id}>
-                            <td className="patient-id-text">{p.patient_id}</td>
-                            <td style={{ fontWeight: 600 }}>{p.full_name}</td>
-                            <td>{p.age}y / {p.sex === 'M' ? 'Male' : 'Female'}</td>
-                            <td>{p.barangay}</td>
-                            <td>{p.contact_number || 'N/A'}</td>
-                            <td>
-                                <div className="action-btns" style={{ justifyContent: 'center' }}>
-                                    <button className="btn-action view" onClick={() => onView(p)}><Eye size={16}/></button>
-                                    <button className="btn-action edit" onClick={() => onEdit(p)}><Edit size={16}/></button>
-                                    <button className="btn-action delete" onClick={() => onDelete(p)}><Trash2 size={16}/></button>
-                                </div>
-                            </td>
+            {/* Table — scrollable body; header stays sticky inside container */}
+            <div className="patient-table-container">
+                <table className="patient-table">
+                    <thead>
+                        <tr>
+                            <th>PATIENT ID</th>
+                            <th>NAME</th>
+                            <th>AGE / SEX</th>
+                            <th>BARANGAY</th>
+                            <th>CONTACT</th>
+                            <th style={{ textAlign: 'center' }}>ACTIONS</th>
                         </tr>
-                    )) : (
-                        <tr><td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No patients found.</td></tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {filteredPatients.length > 0 ? filteredPatients.map(p => (
+                            <tr key={p.id}>
+                                <td className="patient-id-text">{p.patient_id}</td>
+                                <td style={{ fontWeight: 600 }}>{p.full_name}</td>
+                                <td>{p.age}y / {p.sex === 'M' ? 'Male' : 'Female'}</td>
+                                <td>{p.barangay}</td>
+                                <td>{p.contact_number || 'N/A'}</td>
+                                <td>
+                                    <div className="action-btns" style={{ justifyContent: 'center' }}>
+                                        <button className="btn-action view" onClick={() => onView(p)}><Eye size={16}/></button>
+                                        <button className="btn-action edit" onClick={() => onEdit(p)}><Edit size={16}/></button>
+                                        <button className="btn-action delete" onClick={() => onDelete(p)}><Trash2 size={16}/></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No patients found.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

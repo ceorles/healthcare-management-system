@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import "../assets/css/Register.css";
+import logo from "../assets/images/smhc_logo.png"
 
 const BARANGAYS = [
     'Poblacion 1', 'Poblacion 2',
@@ -70,42 +72,84 @@ function Register() {
     };
 
     return (
-        <div>
-            <h2>Register for Sariaya Health System</h2>
-            {message && <p>{message}</p>}
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input type="text" name="fullname" placeholder="Full Name (e.g., Juan Dela Cruz)" onChange={handleChange} required />
-                <input type="text" name="username" placeholder="Username" onChange={handleChange} required />
-                <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-                <input type="text" name="phone_number" placeholder="09xx-xxx-xxxx" onChange={handleChange} required />
-                
-                <select name="role" onChange={handleChange} value={formData.role}>
-                    <option value="ADMIN">Admin</option>
-                    <option value="DOCTOR">Doctor</option>
-                    <option value="NURSE">Nurse</option>
-                </select>
+        <div className="register-page">
+            <div className="register-card">
+            <img src={logo} alt="Logo" className="register-logo" />
+            <h2 className="register-title">Create Your Account</h2>
+            <p className="register-subtitle">Register to continue</p>
 
-                {formData.role === 'NURSE' && (
-                    <select name="barangay" onChange={handleChange} value={formData.barangay} required>
-                        <option value="">Select Barangay...</option>
-                        
-                        {/* LOOP OF 43 BARANGAYS */}
-                        {BARANGAYS.map((brgy) => (
-                            <option key={brgy} value={brgy}>
-                                {brgy}
-                            </option>
-                        ))}
-                        
-                    </select>
-                )}
+            {message && (
+                <div className={`register-message ${isError ? "error" : "success"}`}>
+                {message}
+                </div>
+            )}
 
-                <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
-                <input type="password" name="confirm_password" placeholder="Confirm Password" onChange={handleChange} required />
+            <form onSubmit={handleSubmit} className="register-form">
+                <div className="register-field">
+                <label className="register-label">Full Name</label>
+                <input type="text" name="fullname" placeholder="Full Name (e.g., Juan Dela Cruz)" className="register-input" onChange={handleChange} required/>
+                </div>
 
-                <button type="submit">Register</button>
+                <div className="register-field">
+                <label className="register-label">Username</label>
+                <input type="text" name="username" placeholder="Username" className="register-input" onChange={handleChange} required/>
+                </div>
+
+                <div className="register-row">
+                    <div className="register-field">
+                        <label className="register-label">Email</label>
+                        <input type="email" name="email" placeholder="Email" className="register-input" onChange={handleChange} required/>
+                    </div>
+
+                    <div className="register-field">
+                        <label className="register-label">Phone Number</label>
+                        <input type="text" name="phone_number" placeholder="09xx-xxx-xxxx" className="register-input" onChange={handleChange} required/>
+                    </div>
+                </div>
+
+                <div className="register-row">
+                    <div className="register-field">
+                        <label className="register-label">Role</label>
+                        <select
+                        name="role"
+                        className="register-select"
+                        value={formData.role}
+                        onChange={handleChange}
+                        >
+                        <option value="ADMIN">Admin</option>
+                        <option value="DOCTOR">Doctor</option>
+                        <option value="NURSE">Nurse</option>
+                        </select>
+                    </div>
+
+                    {formData.role === 'NURSE' && (
+                        <div className="register-field">
+                        <label className="register-label">Barangay</label>
+                        <select name="barangay" className="register-select" value={formData.barangay} onChange={handleChange} required>
+                            <option value="">Select Barangay...</option>
+                            {BARANGAYS.map((brgy) => (
+                            <option key={brgy} value={brgy}>{brgy}</option>
+                            ))}
+                        </select>
+                        </div>
+                    )}
+                </div>
+
+                <div className="register-field">
+                <label className="register-label">Password</label>
+                <input type="password" name="password" placeholder="Password" className="register-input" onChange={handleChange} required/>
+                </div>
+
+                <div className="register-field">
+                <label className="register-label">Confirm Password</label>
+                <input type="password" name="confirm_password"  placeholder="Confirm Password" className="register-input" onChange={handleChange} required/>
+                </div>
+
+                <button type="submit" className="register-btn">Register</button>
             </form>
-            <p>Already have an account? <a href="/login">Login here</a></p>
+
+            <p className="register-footer">Already have an account? <a href="/login">Login here</a></p>
+            </div>
         </div>
     );
 }

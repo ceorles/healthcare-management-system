@@ -8,8 +8,13 @@ import PrintReferral from '../components/Referrals/PrintReferral.jsx';
 
 export default function AdminReferrals() {
     const [currentView, setCurrentView] = useState('list');
-    
     const [selectedReferral, setSelectedReferral] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const handleSaveSuccess = () => {
+        setRefreshKey(prev => prev + 1); // TRIGGERS A REFRESH OF THE LIST
+        setCurrentView('list');
+    };
 
     const handleView = (referral) => { setSelectedReferral(referral); setCurrentView('view'); };
     const handleEdit = (referral) => { setSelectedReferral(referral); setCurrentView('edit'); };
@@ -20,11 +25,12 @@ export default function AdminReferrals() {
         <div>
             {currentView === 'list' && (
                 <Referrals 
+                    key={refreshKey}
                     onAddNew={() => setCurrentView('new')} 
                     onView={handleView}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
-                    onPrint={handlePrint} // Added Print Handler!
+                    onPrint={handlePrint}
                 />
             )}
             

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import "../assets/css/Login.css";
+import logo from '../assets/images/smhc_logo.png'
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -11,7 +13,7 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Send login request to Django
+            // SEND REQUEST TO DJANGO
             const response = await axios.post('http://127.0.0.1:8000/api/login/', {
                 username: username,
                 password: password
@@ -55,28 +57,44 @@ function Login() {
     };
 
     return (
-        <div>
-            <h2>Login to Sariaya Health System</h2>
-            {error && <p>{error}</p>}
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="login-page">
+            <div className="login-card">
+            <img src={logo} alt="Logo" className="login-logo" />
+
+            <h2 className="login-title">Welcome Back</h2>
+            <p className="login-subtitle">Login to continue your account</p>
+
+            {error && <div className="login-error">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="login-form">
+
+                <div className="login-field">
+                <label className="login-label">Username</label>
                 <input 
-                    type="text" 
-                    placeholder="Username" 
-                    value={username} 
-                    onChange={(e) => setUsername(e.target.value)} 
-                    required 
+                    type="text"
+                    className="login-input"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
                 />
+                </div>
+
+                <div className="login-field">
+                <label className="login-label">Password</label>
                 <input 
-                    type="password" 
-                    placeholder="Password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required 
+                    type="password"
+                    className="login-input"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                 />
-                <button type="submit">Login</button>
+                </div>
+                <button type="submit" className="login-btn">Login</button>
             </form>
-            <p>Don't have an account? <a href="/register">Register here</a></p>
+            <p className="login-footer">Don't have an account? <a href="/register">Register here</a></p>
+            </div>
         </div>
     );
 }

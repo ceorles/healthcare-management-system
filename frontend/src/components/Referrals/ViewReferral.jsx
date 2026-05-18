@@ -75,6 +75,10 @@ export default function ViewReferral({ referral, onBack, onPrint, onEdit, onDele
                     </div>
                 </div>
             </div>
+            <div className="staff-profile-actions">
+                    <button className="btn-staff-back" onClick={onBack}>Back</button>
+                    <button className="btn-staff-edit" onClick={onEdit}>Edit</button>
+            </div>
         </div>
     );
 }

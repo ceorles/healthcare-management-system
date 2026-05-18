@@ -18,7 +18,7 @@ export default function DashboardLayout() {
             
             {/* MOBILE TOP HEADER (Only shows on small screens) */}
             <div className="dashboard-mobile-header">
-                <h3>Admin Panel</h3>
+                <h3>Admin</h3>
                 <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
                     <Menu size={24} />
                 </button>

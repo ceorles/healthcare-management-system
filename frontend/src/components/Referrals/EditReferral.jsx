@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Edit, Clock } from 'lucide-react'; // Changed icon to Edit
+import { Edit, Clock } from 'lucide-react';
+import { BARANGAYS } from '../../constants/barangays.js';
 import '../../assets/css/Referrals.css';
 
 // FIXED: Added `referral` prop
@@ -18,7 +19,7 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
         walkin_age: referral.walkin_age || '', 
         walkin_address: referral.walkin_address || '', 
         hospital_file_no: referral.hospital_file_no || '',
-        barangay: referral.barangay || 'Poblacion 1', 
+        barangay: referral.barangay || '', 
         referred_to: referral.referred_to || 'Sariaya Health Center', 
         designation: referral.designation || 'Sariaya Municipal Health Center',
         chief_complaint: referral.chief_complaint || '', 
@@ -36,10 +37,36 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 60000);
-        axios.get('http://127.0.0.1:8000/api/patients/', { headers: { Authorization: `Bearer ${localStorage.getItem('access')}` } })
-            .then(res => setPatients(res.data)).catch(console.error);
+        
+        const fetchData = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:8000/api/patients/', { 
+                headers: { Authorization: `Bearer ${localStorage.getItem('access')}` } 
+            });
+            const patientList = response.data;
+            setPatients(patientList);
+
+            if (referral.patient) {
+                const p = patientList.find(pat => pat.id === referral.patient);
+                if (p) {
+                    setFormData(prev => ({
+                        ...prev,
+                        walkin_name: p.full_name,
+                        walkin_age: p.age,
+                        walkin_address: p.address,
+                        barangay: p.barangay,
+                    }));
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching patients:", error);
+            }
+        };
+
+        fetchData();
+            
         return () => clearInterval(timer);
-    }, []);
+    }, [referral.patient]);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -47,7 +74,7 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
         const val = e.target.value;
         if (val === "walkin") {
             setIsWalkin(true);
-            setFormData({ ...formData, patient: '', walkin_name: '', walkin_age: '', walkin_address: '', barangay: 'Poblacion 1' });
+            setFormData({ ...formData, patient: '', walkin_name: '', walkin_age: '', walkin_address: '', barangay: '' });
         } else {
             setIsWalkin(false);
             const p = patients.find(pat => pat.id.toString() === val);
@@ -115,7 +142,15 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
                 </div>
 
                 <div className="ref-grid ref-grid-2">
-                    <div className="ref-input-group"><label>Barangay:</label><input type="text" name="walkin_address" className="ref-input" value={formData.barangay} onChange={handleChange} disabled={!isWalkin} required /></div>
+                    <div className="ref-input-group"><label>Barangay:</label>
+                        {isWalkin ? (
+                            <select name="barangay" className="ref-input" value={formData.barangay} onChange={handleChange} required>
+                                <option value="" disabled>Select barangay</option>
+                                {BARANGAYS.map((b) => <option key={b} value={b}>{b}</option>)}
+                            </select>
+                        ) : (
+                            <input type="text" className="ref-input ref-input-readonly" value={formData.barangay} readOnly disabled />
+                        )}</div>
                     <div className="ref-input-group"><label>Referred To:</label><input type="text" name="referred_to" className="ref-input" value={formData.referred_to} onChange={handleChange} /></div>
                 </div>
 

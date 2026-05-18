@@ -18,6 +18,8 @@ class Patient(models.Model):
     contact_number = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
     barangay = models.CharField(max_length=100, choices=BARANGAYS)
+    guardian_name = models.CharField(max_length=200, blank=True)
+    guardian_contact_info = models.CharField(max_length=20, blank=True)
     emergency_contact_name = models.CharField(max_length=200, blank=True)
     emergency_contact_number = models.CharField(max_length=20, blank=True)
     philhealth_number = models.CharField(max_length=50, blank=True)
