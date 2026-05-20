@@ -56,3 +56,11 @@ class Referral(models.Model):
     @property
     def patient_address_display(self):
         return self.patient.address if self.patient else self.walkin_address
+
+    @property
+    def patient_barangay_display(self):
+        return self.patient.barangay if self.patient else self.barangay
+
+    @property
+    def patient_contact_display(self):
+        return self.patient.contact_number if self.patient else ''

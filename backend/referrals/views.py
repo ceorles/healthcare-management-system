@@ -13,7 +13,29 @@ class ReferralViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(referred_by=self.request.user)
+        self._save_with_patient_sync(serializer, referred_by=self.request.user)
+
+    def perform_update(self, serializer):
+        self._save_with_patient_sync(serializer)
+
+    def _save_with_patient_sync(self, serializer, **extra_kwargs):
+        """
+        Keep Referral linked fields in sync:
+        - linked patient => barangay follows patient, walk-in copies cleared
+        - walk-in referral => keep manually entered walk-in data
+        """
+        patient = serializer.validated_data.get('patient')
+        if patient:
+            serializer.save(
+                barangay=patient.barangay,
+                walkin_name='',
+                walkin_age='',
+                walkin_address='',
+                **extra_kwargs
+            )
+            return
+
+        serializer.save(**extra_kwargs)
 
     @action(detail=False, methods=['get'], url_path='lookup-by-code')
     def lookup_by_code(self, request):

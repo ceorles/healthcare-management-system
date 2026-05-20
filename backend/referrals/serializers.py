@@ -8,6 +8,8 @@ class ReferralSerializer(serializers.ModelSerializer):
     # calculated_age = serializers.ReadOnlyField(source='patient_age_display')
     patient_age_display = serializers.ReadOnlyField()
     patient_address_display = serializers.ReadOnlyField()
+    patient_barangay_display = serializers.ReadOnlyField()
+    patient_contact_display = serializers.ReadOnlyField()
 
     referred_by_name = serializers.CharField(source='referred_by.username', read_only=True)
 

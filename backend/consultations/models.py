@@ -45,6 +45,21 @@ class PatientVisit(models.Model):
     follow_up_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     vitals = models.ForeignKey(VitalSigns, on_delete=models.SET_NULL, null=True, blank=True)
+    scds_output = models.JSONField(blank=True, null=True)
+    follow_up_appointment = models.ForeignKey(
+        'appointments.Appointment',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='source_visit',
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_visits',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

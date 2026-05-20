@@ -1,0 +1,1005 @@
+/* ═══════════════════════════════════════
+   Visit.css — New Visit page
+═══════════════════════════════════════ */
+
+.visit-page {
+    max-width: 100%;
+}
+
+.visit-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.visit-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.visit-page-header .page-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.btn-back-form {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-back-form:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: #d1d5db;
+}
+
+.visit-page-header .page-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.visit-layout {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.visit-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.visit-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.visit-section-header {
+    background: var(--green-mid);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: -20px -20px 20px -20px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.visit-vitals-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.visit-vital-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    gap: 12px;
+}
+
+.visit-vital-row label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.visit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.visit-field:last-child {
+    margin-bottom: 0;
+}
+
+.visit-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.visit-field-hint {
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+    margin-top: -2px;
+}
+
+.visit-input,
+.visit-textarea,
+.visit-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: white;
+}
+
+.visit-textarea {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.visit-input:disabled,
+.visit-input-readonly {
+    background: var(--bg);
+    color: var(--muted);
+}
+
+.visit-bmi-display {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* SCDS panel */
+.scds-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.scds-card h4 {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.scds-subtitle {
+    margin: 0 0 16px 0;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.scds-disclaimer {
+    margin: 16px 0 0 0;
+    padding: 10px 12px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #92400e;
+    line-height: 1.4;
+}
+
+.scds-block {
+    margin-bottom: 16px;
+}
+
+.scds-block:last-of-type {
+    margin-bottom: 0;
+}
+
+.scds-block h5 {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.scds-block ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.scds-block li {
+    margin-bottom: 4px;
+}
+
+.scds-empty {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.scds-loading {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.scds-risk li {
+    color: #b45309;
+}
+
+/* Follow-up toggle card */
+.followup-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.followup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.followup-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.followup-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.visit-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.visit-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.visit-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 24px;
+    transition: 0.2s;
+}
+
+.visit-toggle-slider::before {
+    position: absolute;
+    content: '';
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.visit-toggle input:checked + .visit-toggle-slider {
+    background: #3b82f6;
+}
+
+.visit-toggle input:checked + .visit-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+.followup-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.followup-fields .visit-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.visit-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.visit-btn-cancel,
+.visit-btn-save {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.visit-btn-cancel {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.visit-btn-cancel:hover {
+    background: var(--bg);
+}
+
+.visit-btn-save {
+    background: var(--green);
+    border: none;
+    color: white;
+}
+
+.visit-btn-save:hover {
+    opacity: 0.9;
+}
+
+.visit-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Visit history list in ViewPatient */
+.visit-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.visit-history-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.visit-history-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.visit-history-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.visit-history-body h5 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.visit-history-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.visit-history-summary {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.45;
+}
+
+.visit-history-followup {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+}
+
+.visit-history-item.clickable {
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.visit-history-item.clickable:hover {
+    border-color: var(--green-mid);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.visit-history-view-btn {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.visit-history-view-btn:hover {
+    background: var(--bg);
+    border-color: var(--green-mid);
+    color: var(--green);
+}
+
+/* View Visit details page */
+.view-visit-page .view-visit-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.6fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.view-visit-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.view-visit-info-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.view-visit-info-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.view-visit-info-list li span {
+    color: var(--muted);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.view-visit-info-list li strong {
+    color: var(--text);
+    font-weight: 600;
+    text-align: right;
+}
+
+.view-visit-info-stack li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.view-visit-info-stack li strong {
+    text-align: left;
+}
+
+.view-visit-followup-date {
+    color: #b8860b !important;
+}
+
+.view-visit-note-block {
+    margin-bottom: 16px;
+}
+
+.view-visit-note-block:last-child {
+    margin-bottom: 0;
+}
+
+.view-visit-note-block label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.view-visit-note-content {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    background: #fafafa;
+    min-height: 44px;
+    white-space: pre-wrap;
+}
+
+.view-visit-table-wrap {
+    overflow-x: auto;
+}
+
+.view-visit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.view-visit-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+
+.view-visit-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+}
+
+.view-visit-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.view-visit-index {
+    color: var(--green);
+    font-weight: 700;
+    width: 36px;
+}
+
+.view-visit-scds {
+    margin-top: 0;
+}
+
+.view-visit-prescriptions-head {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    margin: -20px -20px 16px -20px;
+    flex-wrap: wrap;
+    background-color: #2d8653;
+}
+
+.view-visit-prescriptions-head .visit-section-header {
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+    border-radius: 0;
+}
+
+.view-visit-print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 20px 10px 0;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+    align-self: center;
+    height: fit-content;
+}
+
+.view-visit-print-btn:hover {
+    background: #f0fdf4;
+    border-color: var(--green-mid);
+    color: var(--green);
+}
+
+/* ═══════════════════════════════════════
+   Printable Prescription (Receta)
+═══════════════════════════════════════ */
+
+.rx-print-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--bg);
+    overflow-y: auto;
+}
+
+.rx-print-page-wrapper {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.rx-print-document {
+    background: white;
+    width: 100%;
+    max-width: 720px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 48px 56px;
+    color: #111;
+}
+
+.rx-print-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.rx-print-logo {
+    max-width: 72px;
+    object-fit: contain;
+}
+
+.rx-print-header-text {
+    text-align: center;
+    flex: 1;
+}
+
+.rx-print-header-text h2 {
+    margin: 0 0 4px 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111;
+}
+
+.rx-print-header-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #333;
+    line-height: 1.45;
+}
+
+.rx-print-divider {
+    border: none;
+    border-top: 2px solid #111;
+    margin: 0 0 20px 0;
+}
+
+.rx-print-date-row {
+    text-align: right;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.rx-print-date-row strong {
+    font-weight: 700;
+}
+
+.rx-print-patient-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+    font-size: 13px;
+}
+
+.rx-print-patient-row {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.rx-print-patient-row label {
+    font-weight: 700;
+    min-width: 56px;
+}
+
+.rx-print-patient-row strong {
+    font-weight: 600;
+}
+
+.rx-print-body {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    min-height: 220px;
+    margin-bottom: 48px;
+}
+
+.rx-print-symbol {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 1;
+    color: #111;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.rx-print-medications {
+    flex: 1;
+    padding-top: 8px;
+}
+
+.rx-print-med-list {
+    margin: 0;
+    padding: 0 0 0 20px;
+    list-style: decimal;
+}
+
+.rx-print-med-item {
+    margin-bottom: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.rx-print-med-name {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.rx-print-med-meta {
+    display: block;
+    color: #333;
+}
+
+.rx-print-med-sig {
+    display: block;
+    margin-top: 4px;
+    color: #444;
+    font-style: italic;
+}
+
+.rx-print-empty {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.rx-print-footer {
+    margin-top: auto;
+    padding-top: 24px;
+}
+
+.rx-print-physician-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.rx-print-physician-row label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rx-print-physician-line {
+    flex: 1;
+    border-bottom: 1px solid #111;
+    padding-bottom: 4px;
+    font-weight: 600;
+    min-height: 22px;
+}
+
+.rx-print-license-line {
+    flex: 1;
+    max-width: 200px;
+    border-bottom: 1px solid #111;
+    min-height: 22px;
+}
+
+.rx-print-action-buttons {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .rx-print-document,
+    .rx-print-document * {
+        visibility: visible;
+    }
+
+    .rx-print-document {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        padding: 24px 32px;
+        margin: 0;
+    }
+
+    .rx-print-overlay {
+        position: static;
+        background: white;
+        overflow: visible;
+    }
+
+    .rx-print-page-wrapper {
+        padding: 0;
+        min-height: auto;
+    }
+
+    .rx-print-action-buttons,
+    .visit-page-header,
+    .view-visit-layout,
+    .dashboard-sidebar,
+    .dashboard-mobile-header,
+    .sidebar,
+    nav {
+        display: none !important;
+    }
+}
+
+/* Prescription input rows (New Visit) */
+.prescription-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.prescription-row {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 1.2fr auto;
+    gap: 10px;
+    align-items: start;
+    margin-bottom: 12px;
+}
+
+.prescription-row-header {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 1.2fr auto;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.prescription-remove-btn {
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.prescription-remove-btn:hover {
+    background: #fee2e2;
+}
+
+.prescription-add-btn {
+    margin-top: 4px;
+    padding: 8px 14px;
+    background: white;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+}
+
+.prescription-add-btn:hover {
+    border-color: var(--green-mid);
+    background: #f0fdf4;
+}
+
+@media (max-width: 1024px) {
+    .visit-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .view-visit-page .view-visit-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .prescription-row,
+    .prescription-row-header {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .prescription-row-header span:nth-child(n+3),
+    .prescription-row > *:nth-child(n+3) {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .visit-vital-row {
+        grid-template-columns: 1fr;
+    }
+
+    .followup-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .visit-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .visit-btn-cancel,
+    .visit-btn-save {
+        width: 100%;
+        text-align: center;
+    }
+
+    .visit-history-item {
+        flex-direction: column;
+    }
+
+    .visit-history-view-btn {
+        align-self: flex-start;
+        width: 100%;
+        text-align: center;
+    }
+
+    .prescription-row,
+    .prescription-row-header {
+        grid-template-columns: 1fr;
+    }
+
+    .prescription-row-header {
+        display: none;
+    }
+}

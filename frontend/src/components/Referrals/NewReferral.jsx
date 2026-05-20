@@ -52,6 +52,10 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
         const finalData = { ...formData };
         
         if (!isWalkin) {
+            const linkedPatient = patients.find(p => p.id.toString() === finalData.patient?.toString());
+            if (linkedPatient) {
+                finalData.barangay = linkedPatient.barangay;
+            }
             finalData.walkin_name = '';
             finalData.walkin_age = '';
             finalData.walkin_address = '';

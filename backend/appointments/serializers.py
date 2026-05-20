@@ -1,12 +1,16 @@
 from rest_framework import serializers
 from .models import Appointment
+from consultations.utils import format_user_display_name
+
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    # This grabs the patient's name so React can show "Juan Dela Cruz" instead of just "ID: 1"
     patient_name = serializers.CharField(source='patient.full_name', read_only=True)
-    doctor_name = serializers.CharField(source='doctor.fullname', read_only=True)
+    doctor_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Appointment
         fields = '__all__'
         read_only_fields = ('queue_number', 'created_by', 'created_at')
+
+    def get_doctor_name(self, obj):
+        return format_user_display_name(obj.doctor, with_dr_title=True) or 'Unassigned'

@@ -48,9 +48,10 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
     };
 
     const filteredReferrals = referrals.filter(r => {
-        const searchString = `${r.patient_name_display} ${r.referral_code} ${r.barangay} ${r.referred_to}`.toLowerCase();
+        const liveBarangay = r.patient_barangay_display || r.barangay || '';
+        const searchString = `${r.patient_name_display} ${r.referral_code} ${liveBarangay} ${r.referred_to}`.toLowerCase();
         const matchesSearch = searchString.includes(searchTerm.toLowerCase());
-        const matchesBarangay = filterBarangay === 'All Barangays' || r.barangay === filterBarangay;
+        const matchesBarangay = filterBarangay === 'All Barangays' || liveBarangay === filterBarangay;
         return matchesSearch && matchesBarangay;
     });
 
@@ -179,7 +180,7 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                                 <tr key={r.id} className="ref-table-row">
                                     <td className="ref-code-text">{r.referral_code}</td>
                                     <td className="ref-patient-name">{r.patient_name_display || 'Walk-in'}</td>
-                                    <td>{r.barangay}</td>
+                                    <td>{r.patient_barangay_display || r.barangay}</td>
                                     <td className="ref-to-cell" title={r.referred_to}>{r.referred_to}</td>
                                     <td>{r.referred_by_name || 'Admin'}</td>
                                     <td>{formatDate(r.created_at)}</td>
