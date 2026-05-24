@@ -76,7 +76,7 @@
     background: var(--bg);
 }
 .btn-filter {
-    background: #0d6efd; /* Blue filter button from your design */
+    background: #0d6efd;
     color: white;
     border: none;
     padding: 10px 24px;
@@ -347,6 +347,42 @@
     color: white;
 }
 
+/* View Patient header with back button */
+.page-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-back-patient {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-back-patient:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: #d1d5db;
+}
+
+.page-title-row .page-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
 /* View Patient & Delete Patient Styles */
 .view-grid {
     display: grid;
@@ -410,10 +446,62 @@
 .btn-full.red { background: #ef4444; margin-bottom: 0; }
 
 /* History Cards */
-.history-card { margin-bottom: 20px; min-height: 250px; }
-.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;}
+.history-card {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+    flex-shrink: 0;
+}
+
 .history-header h4 { margin: 0; font-size: 15px; }
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; color: var(--muted); opacity: 0.7; }
+
+/* Independent scroll for visit/referral lists (~2–3 records visible) */
+.history-scroll-body {
+    max-height: min(300px, 42vh);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.history-scroll-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-scroll-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.history-scroll-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.history-scroll-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--muted);
+    opacity: 0.7;
+}
+
 .empty-state svg { margin-bottom: 10px; }
 
 /* --- DELETE MODAL CARD --- */
@@ -462,6 +550,10 @@
 }
 
 @media (max-width: 900px) {
+    .history-scroll-body {
+        max-height: min(280px, 38vh);
+    }
+
     .view-grid { grid-template-columns: 1fr; }
 
     .patients-page {

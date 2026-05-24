@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import axios from 'axios';
 
-import { User, Clock, ClipboardList, Plus, FileText, Edit, Trash2 } from 'lucide-react';
+import { Clock, ClipboardList, Plus, FileText, Edit, Trash2, ChevronLeft } from 'lucide-react';
 
 import '../../assets/css/Patients.css';
 
@@ -10,13 +10,17 @@ import '../../assets/css/Visit.css';
 
 
 
-export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVisit, onViewVisit }) {
+export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVisit, onViewVisit, onViewReferral }) {
 
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
     const [visits, setVisits] = useState([]);
 
     const [visitsLoading, setVisitsLoading] = useState(true);
+
+    const [referrals, setReferrals] = useState([]);
+
+    const [referralsLoading, setReferralsLoading] = useState(true);
 
 
 
@@ -46,17 +50,45 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
     }, [patient.id]);
 
+    const fetchReferrals = useCallback(async () => {
+
+        try {
+
+            const token = localStorage.getItem('access');
+
+            const { data } = await axios.get(`http://127.0.0.1:8000/api/referrals/?patient=${patient.id}`, {
+
+                headers: { Authorization: `Bearer ${token}` },
+
+            });
+
+            setReferrals(data);
+
+        } catch (error) {
+
+            console.error('Error fetching referrals:', error);
+
+        } finally {
+
+            setReferralsLoading(false);
+
+        }
+
+    }, [patient.id]);
+
 
 
     useEffect(() => {
 
         fetchVisits();
 
+        fetchReferrals();
+
         const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 60000);
 
         return () => clearInterval(timer);
 
-    }, [fetchVisits]);
+    }, [fetchVisits, fetchReferrals]);
 
 
 
@@ -88,6 +120,36 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
     };
 
+    const formatReferralDate = (dateString) => {
+
+        if (!dateString) return '---';
+
+        return new Date(dateString).toLocaleString('en-US', {
+
+            year: 'numeric',
+
+            month: 'long',
+
+            day: 'numeric',
+
+            hour: '2-digit',
+
+            minute: '2-digit',
+
+        });
+
+    };
+
+    const formatReferralCode = (code) => {
+
+        if (!code) return '-----';
+
+        return code.replace(/^REF-/, 'REF - ');
+
+    };
+
+    const patientDisplayName = `${patient.last_name}, ${patient.first_name}${patient.middle_name ? ` ${patient.middle_name.charAt(0)}.` : ''}`;
+
 
 
     return (
@@ -96,9 +158,15 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
             <div className="page-header">
 
-                <div className="page-title" style={{ cursor: 'pointer' }} onClick={onBack}>
+                <div className="page-title-row">
 
-                    <User size={24}/> {patient.full_name}
+                    <button type="button" className="btn-back-patient" onClick={onBack} aria-label="Go back">
+
+                        <ChevronLeft size={20} />
+
+                    </button>
+
+                    <h1 className="page-title">{patientDisplayName}</h1>
 
                 </div>
 
@@ -236,6 +304,8 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                         ) : visits.length > 0 ? (
 
+                            <div className="history-scroll-body">
+
                             <div className="visit-history-list">
 
                                 {visits.map((visit) => (
@@ -313,6 +383,8 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                             </div>
 
+                            </div>
+
                         ) : (
 
                             <div className="empty-state">
@@ -333,13 +405,79 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                         <div className="history-header"><h4>Referral History</h4></div>
 
-                        <div className="empty-state">
+                        {referralsLoading ? (
 
-                            <FileText size={32} strokeWidth={1.5} />
+                            <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px' }}>Loading referrals...</p>
 
-                            No Referral History yet.
+                        ) : referrals.length > 0 ? (
 
-                        </div>
+                            <div className="history-scroll-body">
+
+                            <div className="referral-history-list">
+
+                                {referrals.map((referral) => (
+
+                                    <div key={referral.id} className="referral-history-item">
+
+                                        <div className="referral-history-icon">
+
+                                            <FileText size={20} />
+
+                                        </div>
+
+                                        <div className="referral-history-body">
+
+                                            <h5 className="referral-history-code">{formatReferralCode(referral.referral_code)}</h5>
+
+                                            <p className="referral-history-facility">To: {referral.referred_to || '-----'}</p>
+
+                                            <p className="referral-history-meta">
+
+                                                <span>{formatReferralDate(referral.created_at)}</span>
+
+                                                <span className={`referral-history-status ${referral.status || 'pending'}`}>
+
+                                                    {referral.status || 'pending'}
+
+                                                </span>
+
+                                            </p>
+
+                                        </div>
+
+                                        <button
+
+                                            type="button"
+
+                                            className="visit-history-view-btn"
+
+                                            onClick={() => onViewReferral?.(referral.id)}
+
+                                        >
+
+                                            View Details
+
+                                        </button>
+
+                                    </div>
+
+                                ))}
+
+                            </div>
+
+                            </div>
+
+                        ) : (
+
+                            <div className="empty-state">
+
+                                <FileText size={32} strokeWidth={1.5} />
+
+                                No Referral History yet.
+
+                            </div>
+
+                        )}
 
                     </div>
 

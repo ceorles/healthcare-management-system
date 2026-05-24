@@ -8,9 +8,16 @@ from patients.serializers import PatientSerializer
 
 
 class ReferralViewSet(viewsets.ModelViewSet):
-    queryset = Referral.objects.all().order_by('-created_at')
+    queryset = Referral.objects.select_related('patient', 'referred_by').order_by('-created_at')
     serializer_class = ReferralSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        patient_id = self.request.query_params.get('patient')
+        if patient_id:
+            qs = qs.filter(patient_id=patient_id)
+        return qs
 
     def perform_create(self, serializer):
         self._save_with_patient_sync(serializer, referred_by=self.request.user)
@@ -49,10 +56,16 @@ class ReferralViewSet(viewsets.ModelViewSet):
         except Referral.DoesNotExist:
             return Response({'detail': 'Referral not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Pending → Completed when QR is scanned at the receiving facility
+        if referral.status == 'pending':
+            referral.status = 'completed'
+            referral.save(update_fields=['status', 'updated_at'])
+
         has_patient = referral.patient_id is not None
         payload = {
             'referral_id': referral.id,
             'referral_code': referral.referral_code,
+            'status': referral.status,
             'has_registered_patient': has_patient,
             'patient': PatientSerializer(referral.patient).data if has_patient else None,
             'walkin_prefill': None if has_patient else {

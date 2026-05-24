@@ -1,0 +1,336 @@
+/* ═══════════════════════════════════════
+   Settings.css
+═══════════════════════════════════════ */
+
+.settings-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.settings-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.settings-page-header .page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.settings-page-header .page-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.settings-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.settings-alert.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+.settings-alert.success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+/* Profile summary card */
+.settings-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.settings-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--green-mid);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.settings-profile-info h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.settings-role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-bottom: 12px;
+}
+
+.settings-role-badge.admin {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.settings-role-badge.doctor {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.settings-role-badge.nurse {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.settings-profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-size: 13px;
+}
+
+.settings-profile-meta div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.settings-profile-meta label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settings-profile-meta span {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Settings section cards */
+.settings-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.settings-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--green-mid);
+    color: white;
+    padding: 12px 20px;
+}
+
+.settings-card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settings-edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.settings-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.settings-edit-btn.active {
+    background: white;
+    color: var(--green-mid);
+}
+
+.settings-card-body {
+    padding: 24px 20px;
+}
+
+.settings-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.settings-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.settings-field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settings-field .settings-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: -2px;
+}
+
+.settings-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text);
+    background: white;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.settings-input:disabled,
+.settings-input.readonly {
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.settings-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.settings-input-wrap .settings-input {
+    padding-right: 40px;
+}
+
+.settings-toggle-pw {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.settings-toggle-pw:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.settings-password-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0 16px 0;
+    grid-column: 1 / -1;
+}
+
+.settings-update-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: not-allowed;
+    background: #9ca3af;
+    color: white;
+    transition: background 0.2s, opacity 0.2s;
+}
+
+.settings-update-btn.active {
+    background: var(--green-mid);
+    cursor: pointer;
+}
+
+.settings-update-btn.active:hover {
+    background: var(--green);
+}
+
+.settings-update-btn:disabled {
+    opacity: 0.65;
+}
+
+@media (max-width: 768px) {
+    .settings-profile-card {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .settings-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-profile-meta {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .settings-card-body {
+        padding: 16px;
+    }
+}

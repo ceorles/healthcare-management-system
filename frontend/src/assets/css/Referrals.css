@@ -54,6 +54,17 @@
     font-size: 13px;
 }
 
+/* Patient profile → Referral Detail (does not affect main Referrals module) */
+.ref-from-patient .ref-patient-detail-header {
+    margin-bottom: 24px;
+}
+
+.ref-from-patient .ref-patient-detail-header .page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* --- FILTER BAR --- */
 .ref-filter-bar {
     background: white;

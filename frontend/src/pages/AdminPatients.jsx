@@ -7,6 +7,7 @@ import EditPatient from '../components/Patients/EditPatient.jsx';
 import DeletePatient from '../components/Patients/DeletePatient.jsx';
 import NewVisit from '../components/Patients/Visit/NewVisit.jsx';
 import ViewVisit from '../components/Patients/Visit/ViewVisit.jsx';
+import ViewReferral from '../components/Referrals/ViewReferral.jsx';
 
 export default function AdminPatients() {
     const location = useLocation();
@@ -17,6 +18,7 @@ export default function AdminPatients() {
     const [newPatientPrefill, setNewPatientPrefill] = useState(null);
     const [visitRefreshKey, setVisitRefreshKey] = useState(0);
     const [selectedVisitId, setSelectedVisitId] = useState(null);
+    const [selectedReferralId, setSelectedReferralId] = useState(null);
 
     useEffect(() => {
         const redirect = location.state?.qrRedirect;
@@ -25,6 +27,7 @@ export default function AdminPatients() {
         if (redirect.type === 'view' && redirect.patient) {
             setSelectedPatient(redirect.patient);
             setCurrentView('view');
+            setVisitRefreshKey((k) => k + 1);
         } else if (redirect.type === 'new') {
             setNewPatientPrefill(redirect.prefill || null);
             setCurrentView('new');
@@ -39,6 +42,7 @@ export default function AdminPatients() {
     const handleDelete = (patient) => { setSelectedPatient(patient); setCurrentView('delete'); };
     const handleNewVisit = (patient) => { setSelectedPatient(patient); setCurrentView('newVisit'); };
     const handleViewVisit = (visitId) => { setSelectedVisitId(visitId); setCurrentView('viewVisit'); };
+    const handleViewReferral = (referralId) => { setSelectedReferralId(referralId); setCurrentView('viewReferral'); };
 
     const handleVisitSaveSuccess = () => {
         setVisitRefreshKey((k) => k + 1);
@@ -73,6 +77,15 @@ export default function AdminPatients() {
                     onDelete={() => setCurrentView('delete')}
                     onNewVisit={() => handleNewVisit(selectedPatient)}
                     onViewVisit={handleViewVisit}
+                    onViewReferral={handleViewReferral}
+                />
+            )}
+
+            {currentView === 'viewReferral' && selectedPatient && selectedReferralId && (
+                <ViewReferral
+                    referralId={selectedReferralId}
+                    onBack={() => setCurrentView('view')}
+                    fromPatientProfile
                 />
             )}
 

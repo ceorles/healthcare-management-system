@@ -18,7 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 # from users.views import test_connection 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from users.authentication import CustomTokenObtainPairView
 from rest_framework.routers import DefaultRouter
 
 from patients.views import PatientViewSet, get_map_data 
@@ -26,7 +27,15 @@ from appointments.views import AppointmentViewSet
 from consultations.views import VitalSignsViewSet, PatientVisitViewSet
 from prescriptions.views import PrescriptionViewSet
 from referrals.views import ReferralViewSet
-from core.views import HealthAlertViewSet, AuditLogViewSet, ClinicInfoViewSet, CoreValueViewSet, ServiceCategoryViewSet, ClinicScheduleViewSet
+from core.views import (
+    HealthAlertViewSet,
+    AuditLogViewSet,
+    ClinicInfoViewSet,
+    CoreValueViewSet,
+    ServiceCategoryViewSet,
+    ClinicScheduleViewSet,
+    AnalyticsDashboardView,
+)
 from users.views import StaffViewSet
 
 # Router for every API
@@ -52,13 +61,14 @@ urlpatterns =[
     # path('users/test/', test_connection),
 
     # For authentication
-    path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Users App URLs
     path('api/users/', include('users.urls')), 
 
     path('api/patients/map-data/', get_map_data, name='map-data'),
+    path('api/analytics/dashboard/', AnalyticsDashboardView.as_view(), name='analytics-dashboard'),
 
     # API bundled
     path('api/', include(router.urls)),

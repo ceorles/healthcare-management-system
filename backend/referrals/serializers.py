@@ -11,7 +11,12 @@ class ReferralSerializer(serializers.ModelSerializer):
     patient_barangay_display = serializers.ReadOnlyField()
     patient_contact_display = serializers.ReadOnlyField()
 
-    referred_by_name = serializers.CharField(source='referred_by.username', read_only=True)
+    referred_by_name = serializers.SerializerMethodField()
+
+    def get_referred_by_name(self, obj):
+        if not obj.referred_by:
+            return None
+        return obj.referred_by.fullname or obj.referred_by.username
 
     class Meta:
         model = Referral

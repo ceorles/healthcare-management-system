@@ -436,7 +436,7 @@
 }
 
 .visit-history-item.clickable {
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -463,6 +463,101 @@
     background: var(--bg);
     border-color: var(--green-mid);
     color: var(--green);
+}
+
+/* Referral history list in ViewPatient */
+.referral-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.referral-history-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.referral-history-item:hover {
+    border-color: var(--green-mid);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.referral-history-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fce7f3;
+    color: #db2777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.referral-history-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.referral-history-code {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #be185d;
+    letter-spacing: 0.2px;
+}
+
+.referral-history-facility {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 4px 0;
+}
+
+.referral-history-meta {
+    font-size: 11px;
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.referral-history-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: capitalize;
+    background: #f3f4f6;
+    color: var(--muted);
+}
+
+.referral-history-status.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.referral-history-status.accepted {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.referral-history-status.completed {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.referral-history-status.cancelled {
+    background: #fee2e2;
+    color: #b91c1c;
 }
 
 /* View Visit details page */
@@ -992,6 +1087,16 @@
         align-self: flex-start;
         width: 100%;
         text-align: center;
+    }
+
+    .visit-history-item,
+    .referral-history-item {
+        flex-wrap: wrap;
+    }
+
+    .referral-history-item {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .prescription-row,

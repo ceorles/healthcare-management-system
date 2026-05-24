@@ -8,6 +8,7 @@ import ViewStaffAccount from '../components/StaffAccounts/ViewStaffAccount.jsx';
 export default function AdminStaffAccounts() {
     const [currentView, setCurrentView] = useState('list');
     const [selectedStaff, setSelectedStaff] = useState(null);
+    const [listRefreshKey, setListRefreshKey] = useState(0);
 
     const handleView = (staff) => { setSelectedStaff(staff); setCurrentView('view'); };
     const handleEdit = (staff) => { setSelectedStaff(staff); setCurrentView('edit'); };
@@ -16,7 +17,8 @@ export default function AdminStaffAccounts() {
     return (
         <div>
             {currentView === 'list' && (
-                <StaffAccounts 
+                <StaffAccounts
+                    key={listRefreshKey}
                     onAddNew={() => setCurrentView('new')} 
                     onView={handleView}
                     onEdit={handleEdit}
@@ -32,11 +34,14 @@ export default function AdminStaffAccounts() {
             )}
 
             {currentView === 'view' && selectedStaff && (
-                <ViewStaffAccount 
+                <ViewStaffAccount
                     staff={selectedStaff}
                     onBack={() => setCurrentView('list')}
                     onEdit={() => setCurrentView('edit')}
-                    onDelete={() => setCurrentView('delete')}
+                    onStaffUpdated={(updated) => {
+                        setSelectedStaff(updated);
+                        setListRefreshKey((k) => k + 1);
+                    }}
                 />
             )}
 

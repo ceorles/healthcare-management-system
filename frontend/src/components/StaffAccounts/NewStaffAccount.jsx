@@ -1,18 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { UserPlus, Clock } from 'lucide-react';
-import '../../assets/css/Patients.css'; // Reusing your beautiful form CSS!
-
-const BARANGAYS = [
-    'Poblacion 1', 'Poblacion 2', 'Poblacion 3', 'Poblacion 4', 'Poblacion 5', 'Poblacion 6',
-    'Antipolo', 'Balubal', 'Bignay 1', 'Bignay 2', 'Bucal', 'Canda', 'Castañas', 
-    'Concepcion 1', 'Concepcion Banahaw', 'Concepcion Palasan', 'Concepcion Pinagbukuran', 
-    'Gibanga', 'Guisguis San Roque', 'Guisguis Talon', 'Janagdong 1', 'Janagdong 2', 
-    'Limbon', 'Lutucan 1', 'Lutucan Bata', 'Lutucan Malabag', 'Mamala 1', 'Mamala 2', 
-    'Manggalang 1', 'Manggalang Bantilan', 'Manggalang Kiling', 'Manggalang Tulo-Tulo', 
-    'Montecillo', 'Morong', 'Pili', 'Sampaloc 1', 'Sampaloc 2', 'Sampaloc Bogon', 
-    'Sto. Cristo', 'Talaan Aplaya', 'Talaan Pantoc', 'Tumbaga 1', 'Tumbaga 2'
-];
+import '../../assets/css/Patients.css';
+import { BARANGAYS, roleRequiresBarangay } from '../../constants/barangays.js';
 
 export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -35,18 +25,18 @@ export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
         e.preventDefault();
 
         const finalData = { ...formData };
-        if (finalData.role !== 'NURSE') {
-            finalData.barangay = ''; 
+        if (!roleRequiresBarangay(finalData.role)) {
+            finalData.barangay = '';
         }
 
         finalData.confirm_password = finalData.password;
 
         try {
             // Notice we use the /users/register/ endpoint for brand new accounts!
-            await axios.post('http://127.0.0.1:8000/api/users/register/', finalData, {
+            const response = await axios.post('http://127.0.0.1:8000/api/users/register/', finalData, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
             });
-            alert("Staff Account Created Successfully!");
+            alert(response.data?.message || 'Staff account created and verified successfully!');
             onSaveSuccess(); 
         } catch (error) {
             if (error.response && error.response.data) {
@@ -85,13 +75,13 @@ export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
                                 <option value="ADMIN">Admin</option>
                                 <option value="DOCTOR">Doctor</option>
                                 <option value="NURSE">Nurse</option>
+                                <option value="STAFF">Staff</option>
                             </select>
                         </div>
                         
-                        {/* Only show Barangay dropdown if the role is NURSE */}
-                        {formData.role === 'NURSE' ? (
-                            <div className="input-group"><label>Barangay (if Barangay Staff)</label>
-                                <select name="barangay" className="form-input" onChange={handleChange} value={formData.barangay}>
+                        {roleRequiresBarangay(formData.role) ? (
+                            <div className="input-group"><label>Barangay</label>
+                                <select name="barangay" className="form-input" onChange={handleChange} value={formData.barangay} required>
                                     {BARANGAYS.map(b => <option key={b} value={b}>{b}</option>)}
                                 </select>
                             </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, Clock, Search, Filter, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Users, Clock, Search, Filter, Plus, Eye, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import '../../assets/css/Patients.css';
 
 export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
@@ -44,7 +44,43 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
             case 'ADMIN': return <span style={{ background: '#f3e8ff', color: '#a855f7', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>Admin</span>;
             case 'DOCTOR': return <span style={{ background: '#dbeafe', color: '#3b82f6', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>Doctor</span>;
             case 'NURSE': return <span style={{ background: '#fce7f3', color: '#ec4899', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>Nurse</span>;
+            case 'STAFF': return <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>Staff</span>;
             default: return <span style={{ background: '#f3f4f6', color: '#6b7280', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>{role}</span>;
+        }
+    };
+
+    const getVerificationBadge = (status) => {
+        const key = (status || 'PENDING').toLowerCase();
+        const label = status === 'VERIFIED' ? 'Verified' : status === 'REJECTED' ? 'Rejected' : 'Pending';
+        return <span className={`verification-badge ${key}`}>{label}</span>;
+    };
+
+    const handleVerify = async (staffId) => {
+        if (!window.confirm('Verify this account? The user will be able to log in.')) return;
+        try {
+            const token = localStorage.getItem('access');
+            await axios.post(`http://127.0.0.1:8000/api/staff/${staffId}/verify/`, {}, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            fetchStaff();
+        } catch (error) {
+            console.error('Verify failed:', error);
+            alert(error.response?.data?.detail || 'Could not verify account.');
+        }
+    };
+
+    const handleReject = async (staffId) => {
+        const reason = window.prompt('Rejection reason (optional):', '');
+        if (reason === null) return;
+        try {
+            const token = localStorage.getItem('access');
+            await axios.post(`http://127.0.0.1:8000/api/staff/${staffId}/reject/`, { reason }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            fetchStaff();
+        } catch (error) {
+            console.error('Reject failed:', error);
+            alert(error.response?.data?.detail || 'Could not reject account.');
         }
     };
 
@@ -73,6 +109,7 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
                         <option value="Admin">Admin</option>
                         <option value="Doctor">Doctor</option>
                         <option value="Nurse">Nurse</option>
+                        <option value="Staff">Staff</option>
                     </select>
                 </div>
                 <button className="btn-filter" style={{ background: '#3b82f6' }}><Filter size={16}/> Filter</button>
@@ -99,7 +136,8 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
                                 <th>ROLE</th>
                                 <th>BARANGAY</th>
                                 <th>PHONE</th>
-                                <th>STATUS</th>
+                                <th>VERIFICATION</th>
+                                <th>ACCOUNT</th>
                                 <th style={{ textAlign: 'center' }}>ACTIONS</th>
                             </tr>
                         </thead>
@@ -111,6 +149,7 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
                                     <td>{getRoleBadge(s.role)}</td>
                                     <td>{s.barangay || '-----'}</td>
                                     <td>{s.phone_number || '-----'}</td>
+                                    <td>{getVerificationBadge(s.verification_status)}</td>
                                     <td>
                                         <span style={{ 
                                             background: s.is_active ? '#dcfce7' : '#fee2e2', 
@@ -121,16 +160,21 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
                                         </span>
                                     </td>
                                     <td>
-                                        <div className="action-btns" style={{ justifyContent: 'center' }}>
-                                            {/* We will activate these later! */}
-                                            <button className="btn-action view" onClick={() => onView(s)}><Eye size={16}/></button>
-                                            <button className="btn-action edit" onClick={() => onEdit(s)}><Edit size={16}/></button>
-                                            <button className="btn-action delete" onClick={() => onDelete(s)}><Trash2 size={16}/></button>
+                                        <div className="staff-action-btns">
+                                            {s.verification_status === 'PENDING' && (
+                                                <>
+                                                    <button type="button" className="btn-action verify" title="Verify" onClick={() => handleVerify(s.id)}><CheckCircle size={16}/></button>
+                                                    <button type="button" className="btn-action reject-account" title="Reject" onClick={() => handleReject(s.id)}><XCircle size={16}/></button>
+                                                </>
+                                            )}
+                                            <button type="button" className="btn-action view" onClick={() => onView(s)} title="View"><Eye size={16}/></button>
+                                            <button type="button" className="btn-action edit" onClick={() => onEdit(s)} title="Edit"><Edit size={16}/></button>
+                                            <button type="button" className="btn-action delete" onClick={() => onDelete(s)} title="Delete"><Trash2 size={16}/></button>
                                         </div>
                                     </td>
                                 </tr>
                             )) : (
-                                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No staff accounts found.</td></tr>
+                                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No staff accounts found.</td></tr>
                             )}
                         </tbody>
                     </table>

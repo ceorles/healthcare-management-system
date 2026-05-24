@@ -1,3 +1,9 @@
+export const ROLES_REQUIRING_BARANGAY = ['NURSE', 'STAFF'];
+
+export function roleRequiresBarangay(role) {
+    return ROLES_REQUIRING_BARANGAY.includes(role);
+}
+
 export const BARANGAYS = [
     'Poblacion 1', 'Poblacion 2', 'Poblacion 3', 'Poblacion 4', 'Poblacion 5', 'Poblacion 6',
     'Antipolo', 'Balubal', 'Bignay 1', 'Bignay 2', 'Bucal', 'Canda', 'Castañas',

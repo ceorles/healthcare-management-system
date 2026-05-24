@@ -39,14 +39,18 @@ function Login() {
                 navigate('/admin');
             } else if (userRole === 'DOCTOR') {
                 navigate('/doctor');
-            } else if (userRole === 'NURSE') {
+            } else if (userRole === 'NURSE' || userRole === 'STAFF') {
                 navigate('/nurse');
             } else {
                 alert("Unknown role!");
             }
             
         } catch (err) {
-            if (err.response && err.response.status === 401) {
+            const data = err.response?.data;
+            const detail = data?.detail || data?.non_field_errors?.[0];
+            if (detail) {
+                setError(typeof detail === 'string' ? detail : detail[0]);
+            } else if (err.response && err.response.status === 401) {
                 setError("Incorrect username or password. Please try again.");
             } else if (err.message === "Network Error") {
                 setError("Cannot connect to server. Is Django running on port 8000?");

@@ -1,38 +1,39 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // AUTHENTICATION
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
 
 // COMPONENTS
-import Navbar from './components/Navbar'
-import Footer from './components/Footer';
-import ScrollToTop from "./components/ScrollToTop";
+import Navbar from './components/Navbar.jsx'
+import Footer from './components/Footer.jsx';
+import ScrollToTop from "./components/ScrollToTop.jsx";
 import DashboardLayout from './components/DashboardLayout.jsx';
 
 // LANDING
-import Home from './pages/Home'
+import Home from './pages/Home.jsx'
 import Services from './pages/Services.jsx'
 import About from './pages/About.jsx'
 import Contact from './pages/Contact.jsx'
 
 // ADMIN
-import Admin from './pages/Admin';
-import AdminPatients from './pages/AdminPatients';
-import AdminStaffAccounts from './pages/AdminStaffAccounts';
+import Admin from './pages/Admin.jsx';
+import AdminPatients from './pages/AdminPatients.jsx';
+import AdminStaffAccounts from './pages/AdminStaffAccounts.jsx';
 import AdminAuditLogs from './pages/AdminAuditLogs.jsx';
-import AdminAppointments from './pages/AdminAppointments';
-import AdminReferrals from './pages/AdminReferrals';
-import AdminPrograms from './pages/AdminPrograms';
+import AdminAppointments from './pages/AdminAppointments.jsx';
+import AdminReferrals from './pages/AdminReferrals.jsx';
+import AdminPrograms from './pages/AdminPrograms.jsx';
 import AdminGISMap from './pages/AdminGISMap.jsx';
 import AdminReportsAndAnalytics from './pages/AdminReportsAndAnalytics.jsx';
+import AdminSettings from './pages/AdminSettings.jsx';
 
 // DOCTOR
-import Doctor from './pages/Doctor';
+import Doctor from './pages/Doctor/Doctor.jsx';
 
 
 // NURSE
-import Nurse from './pages/Nurse';
+import Nurse from './pages/Nurse/Nurse.jsx';
 
 // CSS
 import './App.css';
@@ -78,7 +79,8 @@ function App() {
                     <Route path="/admin/programs" element={<AdminPrograms />} />
 
                     <Route path="/admin/map" element={<AdminGISMap />} /> 
-                    <Route path="/admin/reports" element={<AdminReportsAndAnalytics />} /> 
+                    <Route path="/admin/reports" element={<AdminReportsAndAnalytics />} />
+                    <Route path="/admin/settings" element={<AdminSettings />} />
 
                     {/* <Route path="/admin/cms-services" element={<AdminCmsServices />} /> */}
                 </Route>

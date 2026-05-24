@@ -1,7 +1,17 @@
 from rest_framework import viewsets, permissions
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .analytics import build_dashboard_payload
 from .models import HealthAlert, AuditLog, ClinicInfo, CoreValue, ServiceCategory, ClinicSchedule
 from .serializers import HealthAlertSerializer, AuditLogSerializer, ClinicInfoSerializer, CoreValueSerializer, ServiceCategorySerializer, ClinicScheduleSerializer
+
+
+class AnalyticsDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(build_dashboard_payload())
 
 
 class HealthAlertViewSet(viewsets.ModelViewSet):

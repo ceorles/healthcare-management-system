@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { UserCog, Clock } from 'lucide-react';
 import '../../assets/css/Patients.css';
-
-const BARANGAYS = [ 'Poblacion 1', 'Poblacion 2', 'Poblacion 3', 'Poblacion 4', 'Poblacion 5', 'Poblacion 6', 'Antipolo', 'Balubal', 'Bignay 1', 'Bignay 2', 'Bucal', 'Canda', 'Castañas', 'Concepcion 1', 'Concepcion Banahaw', 'Concepcion Palasan', 'Concepcion Pinagbukuran', 'Gibanga', 'Guisguis San Roque', 'Guisguis Talon', 'Janagdong 1', 'Janagdong 2', 'Limbon', 'Lutucan 1', 'Lutucan Bata', 'Lutucan Malabag', 'Mamala 1', 'Mamala 2', 'Manggalang 1', 'Manggalang Bantilan', 'Manggalang Kiling', 'Manggalang Tulo-Tulo', 'Montecillo', 'Morong', 'Pili', 'Sampaloc 1', 'Sampaloc 2', 'Sampaloc Bogon', 'Sto. Cristo', 'Talaan Aplaya', 'Talaan Pantoc', 'Tumbaga 1', 'Tumbaga 2' ];
+import { BARANGAYS, roleRequiresBarangay } from '../../constants/barangays.js';
 
 export default function EditStaffAccount({ staff, onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -29,8 +28,8 @@ export default function EditStaffAccount({ staff, onCancel, onSaveSuccess }) {
         e.preventDefault();
 
         const finalData = { ...formData };
-        if (finalData.role !== 'NURSE') {
-            finalData.barangay = ''; 
+        if (!roleRequiresBarangay(finalData.role)) {
+            finalData.barangay = '';
         }
 
         try {
@@ -66,13 +65,16 @@ export default function EditStaffAccount({ staff, onCancel, onSaveSuccess }) {
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Role</label>
                             <select name="role" className="form-input" onChange={handleChange} value={formData.role}>
-                                <option value="ADMIN">Admin</option><option value="DOCTOR">Doctor</option><option value="NURSE">Nurse</option>
+                                <option value="ADMIN">Admin</option>
+                                <option value="DOCTOR">Doctor</option>
+                                <option value="NURSE">Nurse</option>
+                                <option value="STAFF">Staff</option>
                             </select>
                         </div>
                         
-                        {formData.role === 'NURSE' ? (
-                            <div className="input-group"><label>Barangay (if Barangay Staff)</label>
-                                <select name="barangay" className="form-input" onChange={handleChange} value={formData.barangay}>
+                        {roleRequiresBarangay(formData.role) ? (
+                            <div className="input-group"><label>Barangay</label>
+                                <select name="barangay" className="form-input" onChange={handleChange} value={formData.barangay} required>
                                     {BARANGAYS.map(b => <option key={b} value={b}>{b}</option>)}
                                 </select>
                             </div>
