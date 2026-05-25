@@ -1,23 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import LimitedAccessDashboard from '../../components/LimitedAccessDashboard.jsx';
+import '../../assets/css/NurseDashboard.css';
 
 function Nurse() {
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        navigate('/login');
-    };
-
-    return (
-        <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <h1>Nurse Dashboard</h1>
-            <p>Welcome to the Sariaya Health System Admin Panel.</p>
-            <button onClick={handleLogout} style={{ marginTop: '20px', padding: '10px', background: 'red', color: 'white' }}>
-                Logout
-            </button>
-        </div>
-    );
+    return <LimitedAccessDashboard title="Nurse Dashboard" basePath="/nurse" />;
 }
 
 export default Nurse;

@@ -39,8 +39,10 @@ function Login() {
                 navigate('/admin');
             } else if (userRole === 'DOCTOR') {
                 navigate('/doctor');
-            } else if (userRole === 'NURSE' || userRole === 'STAFF') {
+            } else if (userRole === 'NURSE') {
                 navigate('/nurse');
+            } else if (userRole === 'STAFF') {
+                navigate('/staff');
             } else {
                 alert("Unknown role!");
             }

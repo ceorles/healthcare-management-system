@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 
 // AUTHENTICATION
 import Login from './pages/Login.jsx';
@@ -9,6 +9,9 @@ import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import DashboardLayout from './components/DashboardLayout.jsx';
+import DoctorSidebar from './components/DoctorSidebar.jsx';
+import NurseSidebar from './components/NurseSidebar.jsx';
+import StaffSidebar from './components/StaffSidebar.jsx';
 
 // LANDING
 import Home from './pages/Home.jsx'
@@ -30,10 +33,22 @@ import AdminSettings from './pages/AdminSettings.jsx';
 
 // DOCTOR
 import Doctor from './pages/Doctor/Doctor.jsx';
+import DoctorPatients from './pages/Doctor/DoctorPatients.jsx';
+import DoctorReferrals from './pages/Doctor/DoctorReferrals.jsx';
+import DoctorSettings from './pages/Doctor/DoctorSettings.jsx';
 
 
 // NURSE
 import Nurse from './pages/Nurse/Nurse.jsx';
+import NursePatients from './pages/Nurse/NursePatients.jsx';
+import NurseReferrals from './pages/Nurse/NurseReferrals.jsx';
+import NurseSettings from './pages/Nurse/NurseSettings.jsx';
+
+// STAFF
+import Staff from './pages/Staff/Staff.jsx';
+import StaffPatients from './pages/Staff/StaffPatients.jsx';
+import StaffReferrals from './pages/Staff/StaffReferrals.jsx';
+import StaffSettings from './pages/Staff/StaffSettings.jsx';
 
 // CSS
 import './App.css';
@@ -68,7 +83,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 
-                <Route element={<DashboardLayout />}>
+                <Route element={<DashboardLayout title="Admin" allowedRoles={['ADMIN']} />}>
                     <Route path="/admin" element={<Admin />} />
 
                     <Route path="/admin/patients" element={<AdminPatients />} />
@@ -85,9 +100,50 @@ function App() {
                     {/* <Route path="/admin/cms-services" element={<AdminCmsServices />} /> */}
                 </Route>
 
-                <Route path="/doctor" element={<Doctor />} />
-                <Route path="/nurse" element={<Nurse />} />
+                <Route
+                    element={
+                        <DashboardLayout
+                            SidebarComponent={DoctorSidebar}
+                            title="Doctor"
+                            allowedRoles={['DOCTOR']}
+                        />
+                    }
+                >
+                    <Route path="/doctor" element={<Doctor />} />
+                    <Route path="/doctor/patients" element={<DoctorPatients />} />
+                    <Route path="/doctor/referrals" element={<DoctorReferrals />} />
+                    <Route path="/doctor/settings" element={<DoctorSettings />} />
+                </Route>
 
+                <Route
+                    element={
+                        <DashboardLayout
+                            SidebarComponent={NurseSidebar}
+                            title="Nurse"
+                            allowedRoles={['NURSE']}
+                        />
+                    }
+                >
+                    <Route path="/nurse" element={<Nurse />} />
+                    <Route path="/nurse/patients" element={<NursePatients />} />
+                    <Route path="/nurse/referrals" element={<NurseReferrals />} />
+                    <Route path="/nurse/settings" element={<NurseSettings />} />
+                </Route>
+
+                <Route
+                    element={
+                        <DashboardLayout
+                            SidebarComponent={StaffSidebar}
+                            title="Staff"
+                            allowedRoles={['STAFF']}
+                        />
+                    }
+                >
+                    <Route path="/staff" element={<Staff />} />
+                    <Route path="/staff/patients" element={<StaffPatients />} />
+                    <Route path="/staff/referrals" element={<StaffReferrals />} />
+                    <Route path="/staff/settings" element={<StaffSettings />} />
+                </Route>
             </Routes>
         </Router>
     );

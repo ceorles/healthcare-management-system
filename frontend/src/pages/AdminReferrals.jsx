@@ -6,7 +6,10 @@ import EditReferral from '../components/Referrals/EditReferral.jsx';
 import DeleteReferral from '../components/Referrals/DeleteReferral.jsx';
 import PrintReferral from '../components/Referrals/PrintReferral.jsx';
 
-export default function AdminReferrals() {
+export default function AdminReferrals({
+    canDeleteReferrals = true,
+    patientsPath = '/admin/patients',
+}) {
     const [currentView, setCurrentView] = useState('list');
     const [selectedReferral, setSelectedReferral] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -29,8 +32,10 @@ export default function AdminReferrals() {
                     onAddNew={() => setCurrentView('new')} 
                     onView={handleView}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    onDelete={canDeleteReferrals ? handleDelete : undefined}
                     onPrint={handlePrint}
+                    canDelete={canDeleteReferrals}
+                    patientsPath={patientsPath}
                 />
             )}
             
@@ -46,7 +51,7 @@ export default function AdminReferrals() {
                     referral={selectedReferral}
                     onBack={() => setCurrentView('list')}
                     onEdit={() => setCurrentView('edit')}
-                    onDelete={() => setCurrentView('delete')}
+                    onDelete={canDeleteReferrals ? () => setCurrentView('delete') : undefined}
                     onPrint={() => setCurrentView('print')}
                 />
             )}
@@ -59,7 +64,7 @@ export default function AdminReferrals() {
                 />
             )}
 
-            {currentView === 'delete' && selectedReferral && (
+            {canDeleteReferrals && currentView === 'delete' && selectedReferral && (
                 <DeleteReferral 
                     referral={selectedReferral}
                     onCancel={() => setCurrentView('list')} 

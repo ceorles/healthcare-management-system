@@ -434,6 +434,24 @@
     color: var(--green);
     font-weight: 600;
 }
+.visit-history-followup span {
+    display: block;
+    margin-top: 2px;
+}
+.visit-appointment-status {
+    width: fit-content;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+.visit-appointment-status.pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+.visit-appointment-status.completed {
+    background: #dcfce7;
+    color: #15803d;
+}
 
 .visit-history-item.clickable {
     /* cursor: pointer; */

@@ -3,10 +3,17 @@ import { Printer } from 'lucide-react';
 import SariayaLogo from '../../assets/images/SariayaLogo.png';
 import GilasLogo from '../../assets/images/GilasLogo.png';
 import '../../assets/css/Referrals.css';
+import { trackAuditLog } from '../../utils/auditLog.js';
 
 export default function PrintReferral({ referral, onCancel }) {
     
     const handlePrint = () => {
+        trackAuditLog({
+            action: 'print',
+            targetType: 'Referral',
+            targetId: referral.id,
+            description: `Printed referral: ${referral.referral_code || 'Pending referral'}`,
+        });
         window.print();
     };
 

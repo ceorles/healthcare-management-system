@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { QRCodeSVG } from "qrcode.react";
 import { FileText, Clock, QrCode, Printer, Edit, Trash2, ChevronLeft } from 'lucide-react';
 import '../../assets/css/Referrals.css';
 import '../../assets/css/Patients.css';
+import { trackAuditLog } from '../../utils/auditLog.js';
 
 export default function ViewReferral({
     referral,
@@ -18,6 +19,7 @@ export default function ViewReferral({
     const [referralData, setReferralData] = useState(referral || null);
     const [loading, setLoading] = useState(Boolean(referralId && !referral));
     const [error, setError] = useState(null);
+    const viewTrackedRef = useRef(null);
 
     useEffect(() => {
         if (referral) {
@@ -51,6 +53,18 @@ export default function ViewReferral({
         const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 60000);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (!referral || !referralData?.id || viewTrackedRef.current === referralData.id) return;
+
+        viewTrackedRef.current = referralData.id;
+        trackAuditLog({
+            action: 'view',
+            targetType: 'Referral',
+            targetId: referralData.id,
+            description: `Viewed referral: ${referralData.referral_code || 'Pending referral'}`,
+        });
+    }, [referral, referralData]);
 
     const renderPatientHeader = () => (
         <div className="page-header ref-patient-detail-header">

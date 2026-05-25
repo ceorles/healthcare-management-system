@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from core.audit import audit_log
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -25,6 +26,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError({
                 'detail': 'Your account is inactive. Contact the administrator.',
             })
+        request = self.context.get('request')
+        if request:
+            audit_log(
+                request,
+                'login',
+                'Authentication',
+                f'Logged in: {user.fullname or user.username}',
+                target_id=user.id,
+                user=user,
+            )
         return data
 
 

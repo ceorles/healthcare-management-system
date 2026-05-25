@@ -1,3 +1,5 @@
+from datetime import datetime, time, timedelta
+
 from django.db import models
 from django.utils import timezone
 from core.constants import BARANGAYS
@@ -32,6 +34,15 @@ class Patient(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='deleted_patients',
+    )
 
     def save(self, *args, **kwargs):
         if not self.patient_id:
@@ -42,9 +53,35 @@ class Patient(models.Model):
 
     @property
     def age(self):
-        today = timezone.now().date()
         born = self.date_of_birth
-        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+        now = datetime.now()
+        birth_start = datetime.combine(born, time.min)
+
+        if birth_start.date() > now.date():
+            return ''
+
+        age_delta = now - birth_start
+        if age_delta < timedelta(days=1):
+            hours = max(age_delta.seconds // 3600, 1)
+            return f'{hours}h'
+
+        days = age_delta.days
+        if days < 7:
+            return f'{days}d'
+
+        months = (now.year - born.year) * 12 + now.month - born.month
+        if now.day < born.day:
+            months -= 1
+
+        if months < 1:
+            weeks = max(days // 7, 1)
+            return f'{weeks}w'
+
+        if months < 12:
+            return f'{months}m'
+
+        years = now.year - born.year - ((now.month, now.day) < (born.month, born.day))
+        return f'{years}y'
 
     @property
     def full_name(self):

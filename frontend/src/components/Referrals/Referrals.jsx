@@ -17,7 +17,15 @@ const BARANGAYS = [
     'Sto. Cristo', 'Talaan Aplaya', 'Talaan Pantoc', 'Tumbaga 1', 'Tumbaga 2'
 ];
 
-export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint }) {
+export default function Referrals({
+    onAddNew,
+    onView,
+    onEdit,
+    onDelete,
+    onPrint,
+    canDelete = true,
+    patientsPath = '/admin/patients',
+}) {
     const navigate = useNavigate();
     const [referrals, setReferrals] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -79,7 +87,7 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
             });
 
             if (data.has_registered_patient && data.patient) {
-                navigate('/admin/patients', {
+                navigate(patientsPath, {
                     state: {
                         qrRedirect: {
                             type: 'view',
@@ -91,7 +99,7 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                 return;
             }
 
-            navigate('/admin/patients', {
+            navigate(patientsPath, {
                 state: {
                     qrRedirect: {
                         type: 'new',
@@ -114,7 +122,7 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
         } finally {
             setScanProcessing(false);
         }
-    }, [navigate]);
+    }, [navigate, patientsPath]);
 
     return (
         <div className="referrals-page">
@@ -189,7 +197,9 @@ export default function Referrals({ onAddNew, onView, onEdit, onDelete, onPrint 
                                             <button type="button" className="ref-btn-action view" onClick={() => onView(r)} title="View"><Eye size={16}/></button>
                                             <button type="button" className="ref-btn-action print" onClick={() => onPrint(r)} title="Print"><Printer size={16}/></button>
                                             <button type="button" className="ref-btn-action edit" onClick={() => onEdit(r)} title="Edit"><Edit size={16}/></button>
-                                            <button type="button" className="ref-btn-action delete" onClick={() => onDelete(r)} title="Delete"><Trash2 size={16}/></button>
+                                            {canDelete && onDelete && (
+                                                <button type="button" className="ref-btn-action delete" onClick={() => onDelete(r)} title="Delete"><Trash2 size={16}/></button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

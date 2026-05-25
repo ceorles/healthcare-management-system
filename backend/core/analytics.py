@@ -47,26 +47,27 @@ def build_dashboard_payload():
     now = timezone.localtime()
     year = now.year
 
-    total_patients = Patient.objects.filter(is_active=True).count()
+    total_patients = Patient.objects.filter(is_active=True, is_deleted=False).count()
     total_staff = User.objects.filter(is_active=True).count()
     total_visits = PatientVisit.objects.count()
-    total_referrals = Referral.objects.count()
+    total_referrals = Referral.objects.filter(is_deleted=False).count()
 
     patients_by_barangay = list(
-        Patient.objects.filter(is_active=True)
+        Patient.objects.filter(is_active=True, is_deleted=False)
         .values('barangay')
         .annotate(count=Count('id'))
         .order_by('-count', 'barangay')[:10]
     )
 
     referrals_by_barangay = list(
-        Referral.objects.values('barangay')
+        Referral.objects.filter(is_deleted=False)
+        .values('barangay')
         .annotate(count=Count('id'))
         .order_by('-count', 'barangay')[:10]
     )
 
     sex_rows = (
-        Patient.objects.filter(is_active=True)
+        Patient.objects.filter(is_active=True, is_deleted=False)
         .values('sex')
         .annotate(count=Count('id'))
     )
@@ -112,7 +113,7 @@ def build_dashboard_payload():
             'total_referrals': total_referrals,
         },
         'monthly_visits': _monthly_series(PatientVisit.objects.all(), 'visit_date', year),
-        'monthly_referrals': _monthly_series(Referral.objects.all(), 'created_at', year),
+        'monthly_referrals': _monthly_series(Referral.objects.filter(is_deleted=False), 'created_at', year),
         'patients_by_barangay': patients_by_barangay,
         'referrals_by_barangay': referrals_by_barangay,
         'disease_distribution': disease_distribution,

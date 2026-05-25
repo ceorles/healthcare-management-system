@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Clock, ChevronLeft } from 'lucide-react';
+import { formatPatientAge, getTodayDateInputValue, isFutureBirthDate } from '../../utils/age.js';
 import { buildPatientFormFromWalkinPrefill } from '../../utils/patientPrefill.js';
 import '../../assets/css/Patients.css';
 
@@ -44,22 +45,16 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
         return () => clearInterval(timer);
     }, []);
 
-    const calculateAge = (dob) => {
-        if (!dob) return '';
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
-        return age;
-    };
-
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isFutureBirthDate(formData.date_of_birth)) {
+            alert('Date of Birth cannot be in the future.');
+            return;
+        }
         try {
             await axios.post('http://127.0.0.1:8000/api/patients/', formData, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
@@ -109,8 +104,8 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
                     </div>
 
                     <div className="form-grid grid-4">
-                        <div className="input-group"><label>Date of Birth</label><input type="date" name="date_of_birth" className="form-input" required value={formData.date_of_birth} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Age</label><input type="text" className="form-input" disabled value={calculateAge(formData.date_of_birth)} /></div>
+                        <div className="input-group"><label>Date of Birth</label><input type="date" name="date_of_birth" className="form-input" required max={getTodayDateInputValue()} value={formData.date_of_birth} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Age</label><input type="text" className="form-input" disabled value={formatPatientAge(formData.date_of_birth)} /></div>
                         <div className="input-group"><label>Sex</label>
                             <select name="sex" className="form-input" onChange={handleChange} value={formData.sex}>
                                 <option value="M">Male</option><option value="F">Female</option>

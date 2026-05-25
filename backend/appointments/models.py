@@ -1,9 +1,12 @@
 from django.db import models
+from django.utils import timezone
+from datetime import datetime
 from patients.models import Patient
 # from users.models import User
 from django.conf import settings # for USERS
 
 class Appointment(models.Model):
+    ACTIVE_STATUSES = ('scheduled', 'confirmed')
     STATUS_CHOICES = [('scheduled', 'Scheduled'), ('confirmed', 'Confirmed'), ('completed', 'Completed'), ('cancelled', 'Cancelled'), ('no_show', 'No Show')]
     TYPE_CHOICES = [('consultation', 'Consultation'), ('follow_up', 'Follow-up'), ('check_up', 'Check-up'), ('vaccination', 'Vaccination'), ('prenatal', 'Prenatal'), ('other', 'Other')]
 
@@ -31,6 +34,32 @@ class Appointment(models.Model):
             ).count()
             self.queue_number = count + 1
         super().save(*args, **kwargs)
+
+    @property
+    def starts_at(self):
+        naive = datetime.combine(self.appointment_date, self.appointment_time)
+        return timezone.make_aware(naive, timezone.get_current_timezone())
+
+    @property
+    def status_display(self):
+        if self.status == 'completed':
+            return 'Completed'
+        if self.status in self.ACTIVE_STATUSES:
+            return 'Pending'
+        return self.get_status_display()
+
+    def complete_if_past_due(self, save=True):
+        if self.status in self.ACTIVE_STATUSES and self.starts_at <= timezone.now():
+            self.status = 'completed'
+            if save:
+                self.save(update_fields=['status'])
+        return self
+
+    @classmethod
+    def complete_past_due(cls, queryset=None):
+        qs = queryset or cls.objects.all()
+        for appointment in qs.filter(status__in=cls.ACTIVE_STATUSES):
+            appointment.complete_if_past_due()
 
     def __str__(self):
         return f"{self.patient} - {self.appointment_date} {self.appointment_time}"

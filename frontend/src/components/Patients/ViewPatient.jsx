@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 import axios from 'axios';
 
@@ -7,10 +7,21 @@ import { Clock, ClipboardList, Plus, FileText, Edit, Trash2, ChevronLeft } from 
 import '../../assets/css/Patients.css';
 
 import '../../assets/css/Visit.css';
+import { trackAuditLog } from '../../utils/auditLog.js';
 
 
 
-export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVisit, onViewVisit, onViewReferral }) {
+export default function ViewPatient({
+    patient,
+    onBack,
+    onEdit,
+    onDelete,
+    onNewVisit,
+    onViewVisit,
+    onViewReferral,
+    canDelete = true,
+    canCreateVisit = true,
+}) {
 
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
@@ -21,6 +32,8 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
     const [referrals, setReferrals] = useState([]);
 
     const [referralsLoading, setReferralsLoading] = useState(true);
+
+    const viewTrackedRef = useRef(null);
 
 
 
@@ -90,6 +103,20 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
     }, [fetchVisits, fetchReferrals]);
 
+    useEffect(() => {
+
+        if (!patient?.id || viewTrackedRef.current === patient.id) return;
+
+        viewTrackedRef.current = patient.id;
+        trackAuditLog({
+            action: 'view',
+            targetType: 'Patient',
+            targetId: patient.id,
+            description: `Viewed patient record: ${patient.full_name || `${patient.last_name || ''}, ${patient.first_name || ''}`.trim()}`,
+        });
+
+    }, [patient]);
+
 
 
     const getInitials = (first, last) => {
@@ -148,6 +175,20 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
     };
 
+    const formatAppointmentType = (type) => {
+
+        if (!type) return 'Appointment';
+
+        return type
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+
+    };
+
+    const getAppointmentStatusKey = (status) => (
+        status === 'completed' ? 'completed' : 'pending'
+    );
+
     const patientDisplayName = `${patient.last_name}, ${patient.first_name}${patient.middle_name ? ` ${patient.middle_name.charAt(0)}.` : ''}`;
 
 
@@ -194,7 +235,7 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                                     <span className="badge-id">{patient.patient_id}</span>
 
-                                    <span className="badge-tag">{patient.age}yrs</span>
+                                    <span className="badge-tag">{patient.age || '--'}</span>
 
                                     <span className="badge-tag">{patient.sex === 'M' ? 'Male' : 'Female'}</span>
 
@@ -258,11 +299,17 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                         <h4>Actions</h4>
 
-                        <button type="button" className="btn-full green" onClick={onNewVisit}><Plus size={16}/> New Visit</button>
+                        {canCreateVisit && onNewVisit && (
+                            <button type="button" className="btn-full green" onClick={onNewVisit}><Plus size={16}/> New Visit</button>
+                        )}
 
-                        <button type="button" className="btn-full yellow" onClick={onEdit}><Edit size={16}/> Edit Record</button>
+                        {onEdit && (
+                            <button type="button" className="btn-full yellow" onClick={onEdit}><Edit size={16}/> Edit Record</button>
+                        )}
 
-                        <button type="button" className="btn-full red" onClick={onDelete}><Trash2 size={16}/> Delete</button>
+                        {canDelete && onDelete && (
+                            <button type="button" className="btn-full red" onClick={onDelete}><Trash2 size={16}/> Delete</button>
+                        )}
 
                     </div>
 
@@ -278,21 +325,16 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                             <h4>Visit History</h4>
 
-                            <button
-
-                                type="button"
-
-                                className="btn-primary"
-
-                                style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
-
-                                onClick={onNewVisit}
-
-                            >
-
-                                <Plus size={14}/> New Visit
-
-                            </button>
+                            {canCreateVisit && onNewVisit && (
+                                <button
+                                    type="button"
+                                    className="btn-primary"
+                                    style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                    onClick={onNewVisit}
+                                >
+                                    <Plus size={14}/> New Visit
+                                </button>
+                            )}
 
                         </div>
 
@@ -356,9 +398,17 @@ export default function ViewPatient({ patient, onBack, onEdit, onDelete, onNewVi
 
                                                 <p className="visit-history-followup">
 
-                                                    Follow-up: {visit.follow_up_summary.appointment_date} at {visit.follow_up_summary.appointment_time}
+                                                    <span>{visit.follow_up_summary.appointment_type_display || formatAppointmentType(visit.follow_up_summary.appointment_type)}</span>
 
-                                                    {visit.follow_up_summary.doctor_name ? ` · ${visit.follow_up_summary.doctor_name}` : ''}
+                                                    <span>
+                                                        Follow-up: {visit.follow_up_summary.appointment_date} at {visit.follow_up_summary.appointment_time}
+
+                                                        {visit.follow_up_summary.doctor_name ? ` · ${visit.follow_up_summary.doctor_name}` : ''}
+                                                    </span>
+
+                                                    <span className={`visit-appointment-status ${getAppointmentStatusKey(visit.follow_up_summary.status)}`}>
+                                                        Status: {visit.follow_up_summary.status_display || (visit.follow_up_summary.status === 'completed' ? 'Completed' : 'Pending')}
+                                                    </span>
 
                                                 </p>
 

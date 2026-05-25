@@ -14,7 +14,7 @@ const BARANGAYS = [
     'Sto. Cristo', 'Talaan Aplaya', 'Talaan Pantoc', 'Tumbaga 1', 'Tumbaga 2'
 ];
 
-export default function Patients({ onAddNew, onView, onEdit, onDelete }) {
+export default function Patients({ onAddNew, onView, onEdit, onDelete, canDelete = true }) {
     const [patients, setPatients] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterBarangay, setFilterBarangay] = useState('All Barangays');
@@ -95,14 +95,16 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete }) {
                             <tr key={p.id}>
                                 <td className="patient-id-text">{p.patient_id}</td>
                                 <td style={{ fontWeight: 600 }}>{p.full_name}</td>
-                                <td>{p.age}y / {p.sex === 'M' ? 'Male' : 'Female'}</td>
+                                <td>{p.age || '--'} / {p.sex === 'M' ? 'Male' : 'Female'}</td>
                                 <td>{p.barangay}</td>
                                 <td>{p.contact_number || 'N/A'}</td>
                                 <td>
                                     <div className="action-btns" style={{ justifyContent: 'center' }}>
                                         <button className="btn-action view" onClick={() => onView(p)}><Eye size={16}/></button>
                                         <button className="btn-action edit" onClick={() => onEdit(p)}><Edit size={16}/></button>
-                                        <button className="btn-action delete" onClick={() => onDelete(p)}><Trash2 size={16}/></button>
+                                        {canDelete && onDelete && (
+                                            <button className="btn-action delete" onClick={() => onDelete(p)}><Trash2 size={16}/></button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

@@ -8,7 +8,7 @@ class AuditLog(models.Model):
     ACTION_CHOICES = [
         ('create', 'Create'), ('view', 'View'), ('update', 'Update'),
         ('delete', 'Delete'), ('login', 'Login'), ('logout', 'Logout'),
-        ('print', 'Print'), ('export', 'Export'),
+        ('print', 'Print'), ('export', 'Export'), ('qr_scan', 'QR Scan'), ('restore', 'Restore'),
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
@@ -31,7 +31,8 @@ class AuditLog(models.Model):
     def log(cls, user, action, model_name, object_id='', description='', request=None):
         ip = None
         if request:
-            ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+            forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+            ip = forwarded.split(',')[0].strip() if forwarded else request.META.get('REMOTE_ADDR')
         cls.objects.create(
             user=user, action=action, model_name=model_name,
             object_id=str(object_id), description=description, ip_address=ip

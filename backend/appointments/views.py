@@ -11,6 +11,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        Appointment.complete_past_due()
         qs = super().get_queryset()
         patient_id = self.request.query_params.get('patient')
         if patient_id:

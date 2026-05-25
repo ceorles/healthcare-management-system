@@ -40,6 +40,20 @@ function calcBmi(weight, height) {
     return (w / (hm * hm)).toFixed(1);
 }
 
+function parseApiError(error) {
+    const data = error.response?.data;
+    if (!data) return 'Error saving visit. Please check required fields.';
+    if (typeof data === 'string') return data;
+    if (data.detail) return data.detail;
+
+    const messages = Object.values(data)
+        .flatMap((value) => (Array.isArray(value) ? value : [value]))
+        .map((value) => (typeof value === 'object' ? Object.values(value).flat().join(' ') : String(value)))
+        .filter(Boolean);
+
+    return messages.join('\n') || 'Error saving visit. Please check required fields.';
+}
+
 export default function NewVisit({ patient, onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(
         new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -171,6 +185,10 @@ export default function NewVisit({ patient, onCancel, onSaveSuccess }) {
                 alert('Please set follow-up date and time.');
                 return;
             }
+            if (!formData.follow_up_doctor) {
+                alert('Please assign a doctor for the follow-up appointment.');
+                return;
+            }
         }
 
         setSaving(true);
@@ -222,7 +240,7 @@ export default function NewVisit({ patient, onCancel, onSaveSuccess }) {
             onSaveSuccess();
         } catch (error) {
             console.error(error);
-            alert('Error saving visit. Please check required fields.');
+            alert(parseApiError(error));
         } finally {
             setSaving(false);
         }

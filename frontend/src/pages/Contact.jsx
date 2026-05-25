@@ -83,9 +83,9 @@ export default function Contact() {
                     <div>
                         <h4 className="emergency-title"><AlertTriangle size={20} className="emergency-icon" /><span>Emergency Hotline</span></h4>
                         <span className="emergency-hotline">{clinicInfo.emergency_hotline}</span>
-                        <p>Available 24 hours, 7 days a week</p>
+                        {/* <p>Available 24 hours, 7 days a week</p> */}
                     </div>
-                    <span className="badge">24 / 7</span>
+                    {/* <span className="badge">24 / 7</span> */}
                 </div>
 
                 <div className="before-visit">

@@ -4,6 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from core.audit import audit_log
 from .models import User
 from .serializers import (
     PublicRegisterSerializer,
@@ -41,6 +42,13 @@ class RegisterView(generics.CreateAPIView):
             request.user.is_authenticated and request.user.role == 'ADMIN'
         )
         if is_admin_create:
+            audit_log(
+                request,
+                'create',
+                'User',
+                f'Created staff account: {user.fullname or user.username}',
+                target_id=user.id,
+            )
             message = 'Staff account created and verified successfully.'
         else:
             message = (
@@ -90,10 +98,56 @@ class ChangePasswordView(APIView):
         return Response({'detail': 'Password updated successfully.'})
 
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        audit_log(
+            request,
+            'logout',
+            'Authentication',
+            f'Logged out: {request.user.fullname or request.user.username}',
+            target_id=request.user.id,
+        )
+        return Response({'detail': 'Logout recorded.'})
+
+
 class StaffViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        user = self.get_object()
+        audit_log(
+            request,
+            'view',
+            'User',
+            f'Viewed staff account: {user.fullname or user.username}',
+            target_id=user.id,
+        )
+        return response
+
+    def perform_update(self, serializer):
+        user = serializer.save()
+        audit_log(
+            self.request,
+            'update',
+            'User',
+            f'Updated staff account: {user.fullname or user.username}',
+            target_id=user.id,
+        )
+
+    def perform_destroy(self, instance):
+        audit_log(
+            self.request,
+            'delete',
+            'User',
+            f'Deleted staff account: {instance.fullname or instance.username}',
+            target_id=instance.id,
+        )
+        instance.delete()
 
     @action(detail=True, methods=['post'], url_path='verify')
     def verify_account(self, request, pk=None):
@@ -108,6 +162,13 @@ class StaffViewSet(viewsets.ModelViewSet):
         user.is_active = True
         user.rejection_reason = ''
         user.save(update_fields=['verification_status', 'is_active', 'rejection_reason'])
+        audit_log(
+            request,
+            'update',
+            'User',
+            f'Verified staff account: {user.fullname or user.username}',
+            target_id=user.id,
+        )
         return Response(UserSerializer(user).data)
 
     @action(detail=True, methods=['post'], url_path='reject')
@@ -119,4 +180,11 @@ class StaffViewSet(viewsets.ModelViewSet):
         user.is_active = False
         user.rejection_reason = reason or 'Registration not approved by administrator.'
         user.save(update_fields=['verification_status', 'is_active', 'rejection_reason'])
+        audit_log(
+            request,
+            'update',
+            'User',
+            f'Rejected staff account: {user.fullname or user.username}',
+            target_id=user.id,
+        )
         return Response(UserSerializer(user).data)

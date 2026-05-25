@@ -12,13 +12,22 @@ class ReferralSerializer(serializers.ModelSerializer):
     patient_contact_display = serializers.ReadOnlyField()
 
     referred_by_name = serializers.SerializerMethodField()
+    deleted_by_name = serializers.SerializerMethodField()
 
     def get_referred_by_name(self, obj):
         if not obj.referred_by:
             return None
         return obj.referred_by.fullname or obj.referred_by.username
 
+    def get_deleted_by_name(self, obj):
+        if not obj.deleted_by:
+            return None
+        return obj.deleted_by.fullname or obj.deleted_by.username
+
     class Meta:
         model = Referral
         fields = '__all__'
-        # read_only_fields = ('referral_code', 'referred_by', 'created_at', 'updated_at')
+        read_only_fields = (
+            'referral_code', 'referred_by', 'created_at', 'updated_at',
+            'is_deleted', 'deleted_at', 'deleted_by',
+        )

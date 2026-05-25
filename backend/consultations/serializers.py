@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from datetime import datetime, timedelta
 from appointments.models import Appointment
 from prescriptions.models import Prescription
 from .models import VitalSigns, PatientVisit
@@ -73,7 +74,11 @@ class PatientVisitSerializer(serializers.ModelSerializer):
             'appointment_date': appt.appointment_date,
             'appointment_time': appt.appointment_time,
             'appointment_type': appt.appointment_type,
+            'appointment_type_display': appt.get_appointment_type_display(),
+            'doctor_id': appt.doctor_id,
             'doctor_name': doctor_name,
+            'status': appt.status,
+            'status_display': appt.status_display,
             'notes': appt.notes,
         }
 
@@ -92,6 +97,57 @@ class PatientVisitWriteSerializer(serializers.ModelSerializer):
             'diagnosis', 'treatment_given', 'notes', 'follow_up_date', 'status',
             'vitals', 'schedule_follow_up', 'follow_up', 'scds_output', 'prescriptions',
         ]
+
+    def validate(self, data):
+        schedule_follow_up = data.get('schedule_follow_up', False)
+        follow_up_data = data.get('follow_up')
+        if not schedule_follow_up or not follow_up_data:
+            return data
+
+        Appointment.complete_past_due()
+
+        request = self.context.get('request')
+        patient = data.get('patient')
+        appointment_date = follow_up_data.get('appointment_date')
+        appointment_time = follow_up_data.get('appointment_time')
+        doctor_id = follow_up_data.get('doctor')
+
+        if not doctor_id and data.get('doctor'):
+            doctor_id = data['doctor'].id
+        if not doctor_id and request and getattr(request.user, 'role', None) == 'DOCTOR':
+            doctor_id = request.user.id
+
+        if not doctor_id:
+            raise serializers.ValidationError({
+                'follow_up': 'Assigned doctor is required for follow-up appointments.',
+            })
+
+        active_statuses = Appointment.ACTIVE_STATUSES
+        existing_patient_appointment = Appointment.objects.filter(
+            patient=patient,
+            status__in=active_statuses,
+        ).first()
+        if existing_patient_appointment:
+            raise serializers.ValidationError({
+                'follow_up': 'This patient already has an active follow-up appointment.',
+            })
+
+        selected_start = datetime.combine(appointment_date, appointment_time)
+        conflict_window_start = selected_start - timedelta(minutes=30)
+        conflict_window_end = selected_start + timedelta(minutes=30)
+
+        for appointment in Appointment.objects.filter(
+            doctor_id=doctor_id,
+            appointment_date=appointment_date,
+            status__in=active_statuses,
+        ):
+            existing_start = datetime.combine(appointment.appointment_date, appointment.appointment_time)
+            if conflict_window_start < existing_start < conflict_window_end:
+                raise serializers.ValidationError({
+                    'follow_up': 'This doctor already has an appointment scheduled within 30 minutes of the selected time.',
+                })
+
+        return data
 
     def create(self, validated_data):
         vitals_data = validated_data.pop('vitals', None)

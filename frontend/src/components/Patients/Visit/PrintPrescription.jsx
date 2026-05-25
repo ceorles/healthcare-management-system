@@ -3,6 +3,7 @@ import { Printer } from 'lucide-react';
 import SariayaLogo from '../../../assets/images/SariayaLogo.png';
 import GilasLogo from '../../../assets/images/GilasLogo.png';
 import '../../../assets/css/Visit.css';
+import { trackAuditLog } from '../../../utils/auditLog.js';
 
 function getPatientDisplayName(patient) {
     if (!patient) return '-----';
@@ -30,6 +31,12 @@ export default function PrintPrescription({ patient, visit, prescriptions, onCan
     const prescribingPhysician = visit?.created_by_name || 'Staff';
 
     const handlePrint = () => {
+        trackAuditLog({
+            action: 'print',
+            targetType: 'Prescription',
+            targetId: visit?.id || '',
+            description: `Printed prescription for ${getPatientDisplayName(patient)}`,
+        });
         window.print();
     };
 

@@ -1,7 +1,10 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from appointments.models import Appointment
+from core.audit import audit_log
 from .models import VitalSigns, PatientVisit
 from .serializers import (
     VitalSignsSerializer,
@@ -33,6 +36,7 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
         return PatientVisitSerializer
 
     def get_queryset(self):
+        Appointment.complete_past_due()
         qs = super().get_queryset()
         patient_id = self.request.query_params.get('patient')
         if patient_id:
@@ -41,12 +45,32 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
+        if user.role in ('NURSE', 'STAFF'):
+            raise PermissionDenied('Nurse and Staff accounts are not allowed to create patient visits.')
+
         extra = {'created_by': user}
         if user.role == 'DOCTOR' and not serializer.validated_data.get('doctor'):
             extra['doctor'] = user
-        elif user.role == 'NURSE' and not serializer.validated_data.get('nurse'):
-            extra['nurse'] = user
-        serializer.save(**extra)
+        visit = serializer.save(**extra)
+        audit_log(
+            self.request,
+            'create',
+            'Visit',
+            f'Created visit for patient: {visit.patient.full_name}',
+            target_id=visit.id,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        visit = self.get_object()
+        audit_log(
+            request,
+            'view',
+            'Visit',
+            f'Viewed visit for patient: {visit.patient.full_name}',
+            target_id=visit.id,
+        )
+        return response
 
     @action(detail=False, methods=['post'], url_path='analyze-scds')
     def analyze_scds(self, request):
