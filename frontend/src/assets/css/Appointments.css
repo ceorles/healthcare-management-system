@@ -2,13 +2,19 @@
    Appointments.css
 ═══════════════════════════════════════ */
 
+.appointments-page {
+    width: 100%;
+}
+
 /* --- PAGE HEADER --- */
 .appt-page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     padding-bottom: 24px;
 }
+
 .appt-page-title {
     display: flex;
     align-items: center;
@@ -17,20 +23,85 @@
     font-weight: 700;
     color: var(--text);
 }
+
 .appt-page-time {
     display: flex;
     align-items: center;
     gap: 6px;
     color: var(--muted);
     font-size: 13px;
+    white-space: nowrap;
+}
+
+.appt-alert {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    font-weight: 600;
+}
+
+.appt-filter-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(130px, 1fr)) auto;
+    gap: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.appt-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.appt-filter-group label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.appt-view-toggle {
+    align-self: end;
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.appt-view-toggle button {
+    border: none;
+    background: white;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.appt-view-toggle button.active {
+    background: #eff6ff;
+    color: #2563eb;
 }
 
 /* --- MAIN LAYOUT --- */
 .appointments-layout {
     display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 30px;
+    grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+    gap: 24px;
     align-items: start;
+}
+
+.appointments-layout.queue-only {
+    grid-template-columns: 1fr;
 }
 
 /* --- CALENDAR WIDGET --- */
@@ -39,8 +110,9 @@
     border-radius: 8px;
     border: 1px solid var(--border);
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
+
 .calendar-header {
     background: var(--green);
     color: white;
@@ -49,11 +121,13 @@
     justify-content: space-between;
     align-items: center;
 }
+
 .calendar-header h3 {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: 1.2rem;
+    font-size: 15px;
+    font-weight: 700;
 }
+
 .calendar-nav-btn {
     background: none;
     border: none;
@@ -66,9 +140,11 @@
     border-radius: 4px;
     transition: background 0.2s;
 }
+
 .calendar-nav-btn:hover { background: rgba(255,255,255,0.2); }
 
 .calendar-body { padding: 20px; }
+
 .calendar-days-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -78,27 +154,68 @@
     color: var(--muted);
     margin-bottom: 15px;
 }
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 6px;
 }
+
 .calendar-day {
-    aspect-ratio: 1;
+    min-height: 46px;
+    border: 1px solid transparent;
+    background: white;
+    font-family: var(--font-body);
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    gap: 1px;
     font-size: 13px;
     font-weight: 600;
     color: var(--text);
-    border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s;
+    position: relative;
 }
-.calendar-day:hover:not(.empty) { background: var(--bg); }
+
+.calendar-day:hover { background: var(--bg); }
 .calendar-day.active { background: var(--green); color: white; }
-.calendar-day.empty { cursor: default; }
-.calendar-day.has-appointment { border: 2px solid var(--green-light); }
+.calendar-day.today:not(.active) { border-color: #93c5fd; }
+.calendar-day.muted { color: #cbd5e1; background: #f9fafb; }
+.calendar-day.has-appointment:not(.active) { border-color: var(--green-light); }
+
+.calendar-day em {
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--green-mid);
+    color: white;
+    font-size: 10px;
+    font-style: normal;
+    line-height: 16px;
+    text-align: center;
+}
+
+.calendar-day.active em {
+    background: white;
+    color: var(--green);
+}
+
+.calendar-day small {
+    max-width: 42px;
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendar-day.active small {
+    color: rgba(255, 255, 255, 0.85);
+}
 
 /* --- QUEUE SECTION & TABLE --- */
 .queue-card {
@@ -106,29 +223,59 @@
     border-radius: 8px;
     border: 1px solid var(--border);
     overflow: hidden;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
+
 .queue-header {
-    padding: 20px 24px;
+    padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
 }
+
 .queue-header h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 15px;
+    font-weight: 700;
     color: var(--text);
 }
 
-/* New Self-Contained Table CSS */
+.queue-header span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.appt-table-wrap {
+    width: 100%;
+    max-height: min(520px, 58vh);
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.appt-table-wrap::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
 .appt-table {
     width: 100%;
     background: white;
     border-collapse: collapse;
-    border-top: 1px solid var(--border);
+    min-width: 860px;
 }
+
 .appt-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     background: #f9fafb;
-    padding: 12px 24px;
+    padding: 12px 20px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
@@ -136,46 +283,247 @@
     border-bottom: 1px solid var(--border);
     text-transform: uppercase;
 }
+
 .appt-table td {
-    padding: 16px 24px;
+    padding: 15px 20px;
     font-size: 13px;
     color: var(--text);
     border-bottom: 1px solid var(--border);
+    vertical-align: middle;
 }
+
+.appt-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.appt-patient-cell {
+    font-weight: 600;
+}
+
 .queue-badge {
-    width: 24px; height: 24px;
+    width: 24px;
+    height: 24px;
     background: #dcfce7;
     color: #166534;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
     font-size: 12px;
 }
-.status-select {
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text);
-    background: white;
-    cursor: pointer;
+
+.appt-status-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.appt-status-badge.scheduled {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.appt-status-badge.completed {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.appt-status-badge.cancelled,
+.appt-status-badge.no_show {
+    background: #fef2f2;
+    color: #b91c1c;
 }
 
 /* Action Buttons */
+.appt-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
 .appt-btn-action {
     background: white;
     border: 1px solid var(--border);
-    padding: 4px 6px;
+    width: 26px;
+    height: 26px;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    color: #3b82f6; /* Blue icon */
+    color: var(--muted);
 }
+
 .appt-btn-action:hover { background: var(--bg); }
+
+.appt-btn-action.view {
+    color: #2563eb;
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+
+.appt-btn-action.edit {
+    color: #92400e;
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+.appt-btn-action.delete {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.appt-empty-row {
+    text-align: center;
+    color: var(--muted) !important;
+    font-weight: 500;
+    padding: 40px 20px !important;
+}
+
+.appt-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(15, 23, 42, 0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.appt-modal {
+    width: min(620px, 100%);
+    max-height: min(760px, 90vh);
+    overflow-y: auto;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.appt-modal::-webkit-scrollbar {
+    width: 0;
+}
+
+.appt-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.appt-modal-header h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.appt-modal-header button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.appt-modal-body {
+    padding: 20px;
+}
+
+.appt-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.appt-detail-grid div,
+.appt-detail-notes {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    background: #f9fafb;
+}
+
+.appt-detail-grid span,
+.appt-detail-notes span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.appt-detail-grid strong {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.appt-detail-notes {
+    margin-top: 14px;
+}
+
+.appt-detail-notes p {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.appt-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.appt-btn-primary,
+.appt-btn-secondary {
+    border-radius: 4px;
+    padding: 9px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.appt-btn-primary {
+    border: 1px solid var(--green-mid);
+    background: var(--green-mid);
+    color: white;
+}
+
+.appt-btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.appt-btn-secondary {
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text);
+}
 
 /* ═══════════════════════════════════════
    New Appointment Form Styles
@@ -291,6 +639,18 @@
 }
 
 @media (max-width: 1200px) {
+    .appt-filter-card {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .appt-view-toggle {
+        width: 100%;
+    }
+
+    .appt-view-toggle button {
+        flex: 1;
+    }
+
     .appointments-layout { 
         grid-template-columns: 1fr; 
     }
@@ -301,11 +661,58 @@
     }
 }
 
-@media (max-width: 600px) {
-    .queue-card {
-        overflow-x: auto;
+@media (max-width: 700px) {
+    .appt-page-header {
+        align-items: flex-start;
+        flex-direction: column;
     }
+
+    .appt-filter-card {
+        grid-template-columns: 1fr;
+        padding: 14px;
+    }
+
+    .calendar-widget {
+        max-width: none;
+        width: 100%;
+    }
+
+    .calendar-body {
+        padding: 14px;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+    }
+
+    .calendar-day {
+        min-height: 42px;
+    }
+
+    .calendar-day small {
+        display: none;
+    }
+
+    .queue-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .appt-table {
         min-width: 700px;
+    }
+
+    .appt-detail-grid,
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .appt-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .appt-btn-primary,
+    .appt-btn-secondary {
+        width: 100%;
     }
 }

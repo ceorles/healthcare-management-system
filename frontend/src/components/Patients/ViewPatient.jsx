@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 import axios from 'axios';
 
-import { Clock, ClipboardList, Plus, FileText, Edit, Trash2, ChevronLeft } from 'lucide-react';
+import { Clock, ClipboardList, Plus, FileText, Edit, Trash2, ChevronLeft, UserX, XCircle } from 'lucide-react';
 
 import '../../assets/css/Patients.css';
 
@@ -186,8 +186,26 @@ export default function ViewPatient({
     };
 
     const getAppointmentStatusKey = (status) => (
-        status === 'completed' ? 'completed' : 'pending'
+        status || 'scheduled'
     );
+
+    const handleAppointmentStatusChange = async (event, appointmentId, nextStatus) => {
+        event.stopPropagation();
+        const actionLabel = nextStatus === 'cancelled' ? 'cancel this appointment' : 'mark this appointment as no show';
+        const shouldUpdate = window.confirm(`Are you sure you want to ${actionLabel}?`);
+        if (!shouldUpdate) return;
+
+        try {
+            const token = localStorage.getItem('access');
+            await axios.patch(`http://127.0.0.1:8000/api/appointments/${appointmentId}/`, { status: nextStatus }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            fetchVisits();
+        } catch (error) {
+            console.error('Error updating appointment status:', error);
+            alert('Unable to update appointment status. Please try again.');
+        }
+    };
 
     const patientDisplayName = `${patient.last_name}, ${patient.first_name}${patient.middle_name ? ` ${patient.middle_name.charAt(0)}.` : ''}`;
 
@@ -407,8 +425,24 @@ export default function ViewPatient({
                                                     </span>
 
                                                     <span className={`visit-appointment-status ${getAppointmentStatusKey(visit.follow_up_summary.status)}`}>
-                                                        Status: {visit.follow_up_summary.status_display || (visit.follow_up_summary.status === 'completed' ? 'Completed' : 'Pending')}
+                                                        Status: {visit.follow_up_summary.status_display || 'Scheduled'}
                                                     </span>
+                                                    {canCreateVisit && visit.follow_up_summary.status === 'scheduled' && visit.follow_up_summary.id && (
+                                                        <span className="visit-appointment-actions">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => handleAppointmentStatusChange(e, visit.follow_up_summary.id, 'cancelled')}
+                                                            >
+                                                                <XCircle size={12} /> Cancel
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => handleAppointmentStatusChange(e, visit.follow_up_summary.id, 'no_show')}
+                                                            >
+                                                                <UserX size={12} /> No Show
+                                                            </button>
+                                                        </span>
+                                                    )}
 
                                                 </p>
 

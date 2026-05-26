@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, Clock, Search, Filter, Plus, Eye, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import '../../assets/css/Patients.css';
+import '../../assets/css/StaffAccounts.css';
 
 export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
     const [staff, setStaff] = useState([]);
@@ -85,7 +86,7 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
     };
 
     return (
-        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid var(--border)', minHeight: '80vh' }}>
+        <div className="staff-accounts-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid var(--border)', minHeight: '80vh' }}>
             
             {/* Header */}
             <div className="page-header" style={{ padding: '24px 24px 0 24px' }}>
@@ -94,7 +95,7 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
             </div>
 
             {/* Filter Bar */}
-            <div className="filter-bar" style={{ padding: '20px 24px', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0 }}>
+            <div className="filter-bar staff-accounts-filter-bar" style={{ padding: '20px 24px', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0 }}>
                 <div className="filter-group" style={{ flex: 1.5 }}>
                     <label>Search Staff</label>
                     <div className="search-wrapper">
@@ -116,9 +117,9 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
             </div>
 
             {/* Table Header */}
-            <div className="table-header-row" style={{ borderLeft: 'none', borderRight: 'none' }}>
+            <div className="table-header-row staff-accounts-table-header" style={{ borderLeft: 'none', borderRight: 'none' }}>
                 <h3>All Staff ({filteredStaff.length})</h3>
-                <button onClick={onAddNew} className="btn-primary" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px', background: '#10b981' }}>
+                <button onClick={onAddNew} className="btn-primary" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--green)' }}>
                     <Plus size={16} /> New Staff
                 </button>
             </div>
@@ -127,7 +128,7 @@ export default function StaffAccounts({ onAddNew, onView, onEdit, onDelete }) {
             {loading ? (
                 <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '50px' }}>Loading staff accounts...</p>
             ) : (
-                <div style={{ overflowX: 'auto' }}>
+                <div className="staff-records-scroll" style={{ overflowX: 'auto' }}>
                     <table className="patient-table" style={{ borderLeft: 'none', borderRight: 'none', borderBottom: 'none' }}>
                         <thead>
                             <tr>

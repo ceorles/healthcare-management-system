@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Popup, CircleMarker } from 'react-leaflet';
+import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, Popup, CircleMarker, Polygon } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import axios from 'axios';
 import { Map as MapIcon, MapPin, Clock, Filter, Search } from 'lucide-react';
 import '../../assets/css/GISMap.css';
@@ -57,18 +56,96 @@ const BARANGAY_COORDS = {
     "Tumbaga 2":                [13.9296, 121.5183] // GOODS
 };
 
+function buildBarangayPolygon([lat, lng]) {
+    const latRadius = 0.009;
+    const lngRadius = 0.011;
+
+    return [
+        [lat + latRadius, lng],
+        [lat + latRadius * 0.5, lng + lngRadius],
+        [lat - latRadius * 0.5, lng + lngRadius],
+        [lat - latRadius, lng],
+        [lat - latRadius * 0.5, lng - lngRadius],
+        [lat + latRadius * 0.5, lng - lngRadius],
+    ];
+}
+
+function getChoroplethColor(count, maxCount) {
+    if (!count) return '#f8fafc';
+    const intensity = count / Math.max(maxCount, 1);
+    if (intensity >= 0.75) return '#ef4444';
+    if (intensity >= 0.5) return '#f97316';
+    if (intensity >= 0.25) return '#eab308';
+    return '#22c55e';
+}
+
 export default function GISMap() {
     const [stats, setStats] = useState([]);
+    const [diseases, setDiseases] = useState([]);
+    const [selectedDisease, setSelectedDisease] = useState('');
+    const [diseaseSearch, setDiseaseSearch] = useState('');
+    const [isDiseaseDropdownOpen, setIsDiseaseDropdownOpen] = useState(false);
+    const [mapMode, setMapMode] = useState('dotted');
     const [currentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
     useEffect(() => {
         axios.get('http://127.0.0.1:8000/api/patients/map-data/', {
+            params: selectedDisease ? { disease: selectedDisease } : {},
             headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
         }).then(res => {
-            console.log("Map Data Response:", res.data); // DEBUG: Look at this in F12 console!
             setStats(res.data);
         }).catch(err => console.error(err));
+    }, [selectedDisease]);
+
+    useEffect(() => {
+        axios.get('http://127.0.0.1:8000/api/patients/diseases/', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
+        }).then(res => {
+            setDiseases(Array.isArray(res.data) ? res.data : []);
+        }).catch(err => console.error(err));
     }, []);
+
+    const filteredDiseases = useMemo(() => {
+        const search = diseaseSearch.trim().toLowerCase();
+        return diseases
+            .filter((disease) => disease.toLowerCase().includes(search))
+            .sort((a, b) => a.localeCompare(b));
+    }, [diseaseSearch, diseases]);
+
+    const maxCount = useMemo(() => (
+        Math.max(...stats.map((s) => s.count), 1)
+    ), [stats]);
+
+    const choroplethPolygons = useMemo(() => (
+        stats
+            .map((s) => {
+                const coords = BARANGAY_COORDS[s.barangay];
+                if (!coords) return null;
+                return {
+                    ...s,
+                    polygon: buildBarangayPolygon(coords),
+                    color: getChoroplethColor(s.count, maxCount),
+                };
+            })
+            .filter(Boolean)
+    ), [maxCount, stats]);
+
+    const handleDiseaseSelect = (disease) => {
+        setSelectedDisease(disease);
+        setDiseaseSearch(disease);
+        setIsDiseaseDropdownOpen(false);
+    };
+
+    const handleFilter = () => {
+        const search = diseaseSearch.trim();
+        if (!search) {
+            handleDiseaseSelect('');
+            return;
+        }
+
+        const exactMatch = diseases.find((disease) => disease.toLowerCase() === search.toLowerCase());
+        handleDiseaseSelect(exactMatch || search);
+    };
 
     return (
         <div className="gis-map-container">
@@ -80,9 +157,56 @@ export default function GISMap() {
             <div className="gis-filter-bar">
                 <div className="gis-filter-group">
                     <label>Filter by Diseases</label>
-                    <select className="gis-select"><option>All Diseases</option></select>
+                    <div className="gis-disease-combobox" onBlur={() => setIsDiseaseDropdownOpen(false)}>
+                        <Search size={16} className="gis-disease-search-icon" />
+                        <input
+                            type="text"
+                            className="gis-select gis-disease-input"
+                            placeholder="All Diseases"
+                            value={diseaseSearch}
+                            onChange={(e) => {
+                                setDiseaseSearch(e.target.value);
+                                setIsDiseaseDropdownOpen(true);
+                            }}
+                            onFocus={() => setIsDiseaseDropdownOpen(true)}
+                        />
+                        {isDiseaseDropdownOpen && (
+                            <div className="gis-disease-dropdown">
+                                <button type="button" onMouseDown={() => handleDiseaseSelect('')}>
+                                    All Diseases
+                                </button>
+                                {filteredDiseases.length > 0 ? filteredDiseases.map((disease) => (
+                                    <button
+                                        type="button"
+                                        key={disease}
+                                        onMouseDown={() => handleDiseaseSelect(disease)}
+                                    >
+                                        {disease}
+                                    </button>
+                                )) : (
+                                    <span>No diseases found</span>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <button className="gis-btn-filter"><Filter size={16}/> Filter</button>
+                <button className="gis-btn-filter" onClick={handleFilter}><Filter size={16}/> Filter</button>
+                <div className="gis-map-mode-toggle">
+                    <button
+                        type="button"
+                        className={mapMode === 'dotted' ? 'active' : ''}
+                        onClick={() => setMapMode('dotted')}
+                    >
+                        Dotted Heatmap
+                    </button>
+                    <button
+                        type="button"
+                        className={mapMode === 'geospatial' ? 'active' : ''}
+                        onClick={() => setMapMode('geospatial')}
+                    >
+                        Geospatial Heatmap
+                    </button>
+                </div>
             </div>
 
             <div className="gis-main-layout">
@@ -90,7 +214,26 @@ export default function GISMap() {
                     <div className="gis-section-title"><MapIcon size={20}/> Patient Distribution by Barangay</div>
                     <MapContainer center={[13.9667, 121.5167]} zoom={13} className="gis-leaflet">
                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        {stats.map((s, i) => {
+                        {mapMode === 'geospatial' && choroplethPolygons.map((s) => (
+                            <Polygon
+                                key={`polygon-${s.barangay}-${s.count}`}
+                                positions={s.polygon}
+                                pathOptions={{
+                                    color: '#1f2937',
+                                    weight: 1.2,
+                                    opacity: 0.75,
+                                    fillColor: s.color,
+                                    fillOpacity: 0.46,
+                                }}
+                            >
+                                <Popup>
+                                    <strong>{s.barangay}</strong><br/>
+                                    Total Patients: {s.count}<br/>
+                                    {selectedDisease ? `Disease Count: ${s.count}` : ''}
+                                </Popup>
+                            </Polygon>
+                        ))}
+                        {mapMode === 'dotted' && stats.map((s) => {
                             const coords = BARANGAY_COORDS[s.barangay] || [13.9667, 121.5167];
 
                             // console.log(`Mapping ${s.barangay} (${s.count} patients) to coords:`, coords);
@@ -113,7 +256,7 @@ export default function GISMap() {
                             return (
                                 <CircleMarker 
                                     key={`marker-${s.barangay}-${s.count}`} 
-                                    center={BARANGAY_COORDS[s.barangay]} 
+                                    center={coords} 
                                     radius={radius} 
                                     fillColor={color} 
                                     color={color} 

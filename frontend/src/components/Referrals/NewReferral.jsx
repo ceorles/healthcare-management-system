@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
 import { FilePlus, Clock } from 'lucide-react';
 import { BARANGAYS } from '../../constants/barangays.js';
+import { getTodayDateInputValue } from '../../utils/age.js';
 import '../../assets/css/Referrals.css';
 
 export default function NewReferral({ onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     const [patients, setPatients] = useState([]);
     const [isWalkin, setIsWalkin] = useState(true);
+    const [patientSearch, setPatientSearch] = useState('-- Walk-in Patient --');
+    const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false);
 
     const [formData, setFormData] = useState({
-        patient: '', walkin_name: '', walkin_age: '', walkin_address: '', hospital_file_no: '',
+        patient: '', referral_date: getTodayDateInputValue(), walkin_name: '', walkin_age: '', walkin_address: '', hospital_file_no: '',
         barangay: '', referred_to: 'Sariaya Health Center', designation: 'Sariaya Municipal Health Center',
         chief_complaint: '', brief_history: '', bp: '', pr: '', rr: '', temp: '', weight: '',
         impression: '', reason: '', services_needed: '', remarks: ''
@@ -25,16 +28,28 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handlePatientSelect = (e) => {
-        const val = e.target.value;
+    const filteredPatients = useMemo(() => {
+        const search = patientSearch.trim().toLowerCase();
+        if (!search || search === '-- walk-in patient --') return patients;
+        return patients.filter((patient) => (
+            `${patient.full_name || ''} ${patient.patient_id || ''}`.toLowerCase().includes(search)
+        ));
+    }, [patientSearch, patients]);
+
+    const handlePatientSelect = (val) => {
         if (val === "walkin") {
             setIsWalkin(true);
+            setPatientSearch('-- Walk-in Patient --');
+            setIsPatientDropdownOpen(false);
             setFormData({ ...formData, patient: '', walkin_name: '', walkin_age: '', walkin_address: '', barangay: '' });
         } else {
             setIsWalkin(false);
             const p = patients.find(pat => pat.id.toString() === val);
+            if (!p) return;
             
             // FIXED: We now grab both the address AND the barangay from the patient!
+            setPatientSearch(`${p.full_name} (${p.patient_id})`);
+            setIsPatientDropdownOpen(false);
             setFormData({ 
                 ...formData, 
                 patient: val, 
@@ -85,12 +100,35 @@ export default function NewReferral({ onCancel, onSaveSuccess }) {
                 
                 <div className="ref-grid ref-grid-2">
                     <div className="ref-input-group"><label>Select Patient:</label>
-                        <select className="ref-input" onChange={handlePatientSelect} defaultValue="walkin">
-                            <option value="walkin">-- Walk-in Patient --</option>
-                            {patients.map(p => <option key={p.id} value={p.id}>{p.full_name} ({p.patient_id})</option>)}
-                        </select>
+                        <div className="ref-patient-combobox" onBlur={() => setIsPatientDropdownOpen(false)}>
+                            <input
+                                type="text"
+                                className="ref-input"
+                                value={patientSearch}
+                                onChange={(e) => {
+                                    setPatientSearch(e.target.value);
+                                    setIsPatientDropdownOpen(true);
+                                }}
+                                onFocus={() => setIsPatientDropdownOpen(true)}
+                            />
+                            {isPatientDropdownOpen && (
+                                <div className="ref-patient-dropdown">
+                                    <button type="button" onMouseDown={() => handlePatientSelect('walkin')}>
+                                        -- Walk-in Patient --
+                                    </button>
+                                    {filteredPatients.length > 0 ? filteredPatients.map(p => (
+                                        <button type="button" key={p.id} onMouseDown={() => handlePatientSelect(p.id.toString())}>
+                                            {p.full_name} ({p.patient_id})
+                                        </button>
+                                    )) : (
+                                        <span>No patients found</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
+                    <div className="ref-input-group"><label>Date:</label><input type="date" name="referral_date" className="ref-input" value={formData.referral_date} onChange={handleChange} /></div>
+                    </div>
 
                 <div className="ref-grid ref-grid-2">
                     <div className="ref-input-group"><label>Name of Patient:</label><input type="text" name="walkin_name" className="ref-input" value={formData.walkin_name} onChange={handleChange} disabled={!isWalkin} required /></div>

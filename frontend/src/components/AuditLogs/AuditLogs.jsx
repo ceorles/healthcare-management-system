@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { Clock, Filter, RotateCcw, Search, Shield, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Filter, RotateCcw, Search, Shield, Trash2 } from 'lucide-react';
 import '../../assets/css/AuditLogs.css';
 
 const API = 'http://127.0.0.1:8000/api/audit-logs/';
@@ -57,6 +57,16 @@ function formatDateParam(value) {
     return `${y}-${m}-${d}`;
 }
 
+function getIntegrityMessage(integrity) {
+    if (!integrity) return '';
+    if (integrity.valid) return 'Integrity OK';
+    return integrity.failure_message || (
+        integrity.failed_log
+            ? `Tamper Warning - Issue detected at Log #${integrity.failed_log}`
+            : 'Tamper Warning'
+    );
+}
+
 export default function AuditLogs() {
     const [currentTime, setCurrentTime] = useState(
         new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -67,6 +77,8 @@ export default function AuditLogs() {
     const [trashLoading, setTrashLoading] = useState(false);
     const [error, setError] = useState('');
     const [activePanel, setActivePanel] = useState('logs');
+    const [integrity, setIntegrity] = useState(null);
+    const [integrityLoading, setIntegrityLoading] = useState(false);
     const [filters, setFilters] = useState({
         search: '',
         action: '',
@@ -139,6 +151,23 @@ export default function AuditLogs() {
                 : 'Unable to load trash bin.');
         } finally {
             setTrashLoading(false);
+        }
+    }, []);
+
+    const verifyIntegrity = useCallback(async () => {
+        setIntegrityLoading(true);
+        setError('');
+        try {
+            const token = localStorage.getItem('access');
+            const { data } = await axios.get(`${API}verify-integrity/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setIntegrity(data);
+        } catch (err) {
+            console.error('Integrity verification failed:', err);
+            setError('Unable to verify audit log integrity.');
+        } finally {
+            setIntegrityLoading(false);
         }
     }, []);
 
@@ -254,7 +283,20 @@ export default function AuditLogs() {
 
                 <div className="audit-integrity-row">
                     <strong>Tamper-Evident Log</strong>
-                    <span>Each entry is SHA-256 hashed for integrity</span>
+                    {integrity && (
+                        <span className={`audit-integrity-badge ${integrity.valid ? 'ok' : 'tampered'}`}>
+                            {integrity.valid ? <CheckCircle size={13} /> : <AlertTriangle size={13} />}
+                            {getIntegrityMessage(integrity)}
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        className="audit-verify-btn"
+                        onClick={verifyIntegrity}
+                        disabled={integrityLoading}
+                    >
+                        {integrityLoading ? 'Checking...' : 'Verify Chain'}
+                    </button>
                     <div className="audit-panel-tabs">
                         <button
                             type="button"

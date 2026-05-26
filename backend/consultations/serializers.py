@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from datetime import datetime, timedelta
+from django.utils import timezone
 from appointments.models import Appointment
+from core.audit import audit_log
 from prescriptions.models import Prescription
 from .models import VitalSigns, PatientVisit
 from .scds import analyze_clinical_data
@@ -71,6 +73,7 @@ class PatientVisitSerializer(serializers.ModelSerializer):
             return None
         doctor_name = format_user_display_name(appt.doctor, with_dr_title=True) or 'Unassigned'
         return {
+            'id': appt.id,
             'appointment_date': appt.appointment_date,
             'appointment_time': appt.appointment_time,
             'appointment_type': appt.appointment_type,
@@ -98,35 +101,79 @@ class PatientVisitWriteSerializer(serializers.ModelSerializer):
             'vitals', 'schedule_follow_up', 'follow_up', 'scds_output', 'prescriptions',
         ]
 
+    def _matching_appointment_for_visit(self, patient, doctor_id, visit_date):
+        if not patient or not doctor_id:
+            return None
+
+        visit_day = timezone.localtime(visit_date).date() if timezone.is_aware(visit_date) else visit_date.date()
+        return (
+            Appointment.objects
+            .filter(
+                patient=patient,
+                doctor_id=doctor_id,
+                status='scheduled',
+                appointment_date__lte=visit_day,
+            )
+            .order_by('-appointment_date', '-appointment_time')
+            .first()
+        )
+
+    def _complete_matching_appointment(self, visit):
+        appointment = self._matching_appointment_for_visit(
+            visit.patient,
+            visit.doctor_id,
+            visit.visit_date,
+        )
+        if not appointment:
+            return None
+
+        appointment.status = 'completed'
+        appointment.save(update_fields=['status'])
+
+        request = self.context.get('request')
+        audit_log(
+            request,
+            'update',
+            'Appointment',
+            f'Auto-completed appointment of {appointment.patient.full_name} after visit creation',
+            target_id=appointment.id,
+        )
+        return appointment
+
     def validate(self, data):
         schedule_follow_up = data.get('schedule_follow_up', False)
         follow_up_data = data.get('follow_up')
         if not schedule_follow_up or not follow_up_data:
             return data
 
-        Appointment.complete_past_due()
-
         request = self.context.get('request')
         patient = data.get('patient')
+        visit_date = data.get('visit_date') or timezone.now()
         appointment_date = follow_up_data.get('appointment_date')
         appointment_time = follow_up_data.get('appointment_time')
-        doctor_id = follow_up_data.get('doctor')
+        follow_up_doctor_id = follow_up_data.get('doctor')
+        visit_doctor_id = data['doctor'].id if data.get('doctor') else None
 
-        if not doctor_id and data.get('doctor'):
-            doctor_id = data['doctor'].id
-        if not doctor_id and request and getattr(request.user, 'role', None) == 'DOCTOR':
-            doctor_id = request.user.id
+        if not visit_doctor_id and request and getattr(request.user, 'role', None) == 'DOCTOR':
+            visit_doctor_id = request.user.id
+        if not follow_up_doctor_id:
+            follow_up_doctor_id = visit_doctor_id
 
-        if not doctor_id:
+        if not follow_up_doctor_id:
             raise serializers.ValidationError({
                 'follow_up': 'Assigned doctor is required for follow-up appointments.',
             })
 
         active_statuses = Appointment.ACTIVE_STATUSES
-        existing_patient_appointment = Appointment.objects.filter(
+        patient_appointments = Appointment.objects.filter(
             patient=patient,
             status__in=active_statuses,
-        ).first()
+        )
+        matching_appointment = self._matching_appointment_for_visit(patient, visit_doctor_id, visit_date)
+        if matching_appointment:
+            patient_appointments = patient_appointments.exclude(pk=matching_appointment.pk)
+
+        existing_patient_appointment = patient_appointments.first()
         if existing_patient_appointment:
             raise serializers.ValidationError({
                 'follow_up': 'This patient already has an active follow-up appointment.',
@@ -137,7 +184,7 @@ class PatientVisitWriteSerializer(serializers.ModelSerializer):
         conflict_window_end = selected_start + timedelta(minutes=30)
 
         for appointment in Appointment.objects.filter(
-            doctor_id=doctor_id,
+            doctor_id=follow_up_doctor_id,
             appointment_date=appointment_date,
             status__in=active_statuses,
         ):
@@ -180,6 +227,7 @@ class PatientVisitWriteSerializer(serializers.ModelSerializer):
             )
 
         visit = PatientVisit.objects.create(vitals=vitals_instance, **validated_data)
+        self._complete_matching_appointment(visit)
 
         for rx in prescriptions_data:
             medication = (rx.get('medication_name') or '').strip()

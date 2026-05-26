@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Edit, Clock } from 'lucide-react';
 import { BARANGAYS } from '../../constants/barangays.js';
+import { getTodayDateInputValue } from '../../utils/age.js';
 import '../../assets/css/Referrals.css';
 
 // FIXED: Added `referral` prop
 export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     const [patients, setPatients] = useState([]);
+    const [patientSearch, setPatientSearch] = useState(referral.patient_name_display || '-- Walk-in Patient --');
+    const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false);
     
     // FIXED: Initialize isWalkin based on whether the referral has a registered patient ID
     const [isWalkin, setIsWalkin] = useState(!referral.patient);
@@ -15,6 +18,7 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
     // FIXED: Pre-fill all data using the passed in referral object!
     const [formData, setFormData] = useState({
         patient: referral.patient || '', 
+        referral_date: referral.referral_date || getTodayDateInputValue(),
         walkin_name: referral.walkin_name || '', 
         walkin_age: referral.walkin_age || '', 
         walkin_address: referral.walkin_address || '', 
@@ -56,6 +60,7 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
                         walkin_address: p.address,
                         barangay: p.barangay,
                     }));
+                    setPatientSearch(`${p.full_name} (${p.patient_id})`);
                     }
                 }
             } catch (error) {
@@ -70,15 +75,27 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handlePatientSelect = (e) => {
-        const val = e.target.value;
+    const filteredPatients = useMemo(() => {
+        const search = patientSearch.trim().toLowerCase();
+        if (!search || search === '-- walk-in patient --') return patients;
+        return patients.filter((patient) => (
+            `${patient.full_name || ''} ${patient.patient_id || ''}`.toLowerCase().includes(search)
+        ));
+    }, [patientSearch, patients]);
+
+    const handlePatientSelect = (val) => {
         if (val === "walkin") {
             setIsWalkin(true);
+            setPatientSearch('-- Walk-in Patient --');
+            setIsPatientDropdownOpen(false);
             setFormData({ ...formData, patient: '', walkin_name: '', walkin_age: '', walkin_address: '', barangay: '' });
         } else {
             setIsWalkin(false);
             const p = patients.find(pat => pat.id.toString() === val);
+            if (!p) return;
             
+            setPatientSearch(`${p.full_name} (${p.patient_id})`);
+            setIsPatientDropdownOpen(false);
             setFormData({ 
                 ...formData, 
                 patient: val, 
@@ -131,12 +148,34 @@ export default function EditReferral({ referral, onCancel, onSaveSuccess }) {
                 
                 <div className="ref-grid ref-grid-2">
                     <div className="ref-input-group"><label>Select Patient:</label>
-                        {/* Pre-select Walk-in or the specific Patient ID */}
-                        <select className="ref-input" onChange={handlePatientSelect} value={formData.patient || "walkin"}>
-                            <option value="walkin">-- Walk-in Patient --</option>
-                            {patients.map(p => <option key={p.id} value={p.id}>{p.full_name} ({p.patient_id})</option>)}
-                        </select>
+                        <div className="ref-patient-combobox" onBlur={() => setIsPatientDropdownOpen(false)}>
+                            <input
+                                type="text"
+                                className="ref-input"
+                                value={patientSearch}
+                                onChange={(e) => {
+                                    setPatientSearch(e.target.value);
+                                    setIsPatientDropdownOpen(true);
+                                }}
+                                onFocus={() => setIsPatientDropdownOpen(true)}
+                            />
+                            {isPatientDropdownOpen && (
+                                <div className="ref-patient-dropdown">
+                                    <button type="button" onMouseDown={() => handlePatientSelect('walkin')}>
+                                        -- Walk-in Patient --
+                                    </button>
+                                    {filteredPatients.length > 0 ? filteredPatients.map(p => (
+                                        <button type="button" key={p.id} onMouseDown={() => handlePatientSelect(p.id.toString())}>
+                                            {p.full_name} ({p.patient_id})
+                                        </button>
+                                    )) : (
+                                        <span>No patients found</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
+                    <div className="ref-input-group"><label>Date:</label><input type="date" name="referral_date" className="ref-input" value={formData.referral_date} onChange={handleChange} /></div>
                 </div>
 
                 <div className="ref-grid ref-grid-2">

@@ -101,7 +101,7 @@ def build_dashboard_payload():
 
     disease_distribution = [
         {'label': label, 'count': count}
-        for label, count in diagnosis_counter.most_common(8)
+        for label, count in diagnosis_counter.most_common()
     ]
 
     return {

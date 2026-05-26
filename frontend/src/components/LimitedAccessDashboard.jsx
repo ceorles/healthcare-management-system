@@ -149,7 +149,9 @@ export default function LimitedAccessDashboard({ title, basePath }) {
                 },
             });
         } catch (err) {
-            if (err.response?.status === 404) {
+            if (err.response?.status === 409) {
+                alert(err.response.data?.detail || 'This referral slip has already been used. Please get a new referral slip.');
+            } else if (err.response?.status === 404) {
                 alert(`Referral "${code}" was not found in the system.`);
             } else {
                 console.error('QR lookup failed:', err);

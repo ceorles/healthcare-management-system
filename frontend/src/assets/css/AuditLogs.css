@@ -137,6 +137,43 @@
     font-weight: 500;
 }
 
+.audit-integrity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700 !important;
+}
+
+.audit-integrity-badge.ok {
+    background: #dcfce7;
+    color: #15803d !important;
+}
+
+.audit-integrity-badge.tampered {
+    background: #fef2f2;
+    color: #b91c1c !important;
+}
+
+.audit-verify-btn {
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--text);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.audit-verify-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .audit-error {
     margin: 14px 24px 0;
     padding: 10px 12px;
@@ -318,6 +355,10 @@
     .audit-panel-tabs button {
         flex: 1;
         justify-content: center;
+    }
+
+    .audit-verify-btn {
+        width: 100%;
     }
 
     .audit-table-wrap {

@@ -9,8 +9,10 @@ import {
     List,
     QrCode,
     ScanLine,
+    UserX,
     UserRound,
     Users,
+    XCircle,
 } from 'lucide-react';
 import ViewPatient from '../../components/Patients/ViewPatient.jsx';
 import NewVisit from '../../components/Patients/Visit/NewVisit.jsx';
@@ -23,6 +25,7 @@ import '../../assets/css/DoctorDashboard.css';
 const API = 'http://127.0.0.1:8000/api';
 const RECENT_DAYS = 7;
 const TABLE_LIMIT = 5;
+const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function formatDateValue(date = new Date()) {
     const y = date.getFullYear();
@@ -56,6 +59,44 @@ function formatQueueDate(date = new Date()) {
     });
 }
 
+function formatQueueDateValue(dateValue) {
+    if (!dateValue) return '';
+    return formatQueueDate(new Date(`${dateValue}T12:00:00`));
+}
+
+function getMonthStart(dateValue) {
+    const date = dateValue ? new Date(`${dateValue}T12:00:00`) : new Date();
+    return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function buildCalendarDays(monthDate) {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const start = new Date(firstDay);
+    start.setDate(firstDay.getDate() - firstDay.getDay());
+
+    return Array.from({ length: 42 }, (_, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        return {
+            date,
+            value: formatDateValue(date),
+            day: date.getDate(),
+            inMonth: date.getMonth() === month,
+        };
+    });
+}
+
+function getMonthBounds(monthDate) {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    return {
+        start_date: formatDateValue(new Date(year, month, 1)),
+        end_date: formatDateValue(new Date(year, month + 1, 0)),
+    };
+}
+
 function formatAppointmentTime(time) {
     if (!time) return '--:--';
     const [hour = '0', minute = '0'] = String(time).split(':');
@@ -65,7 +106,7 @@ function formatAppointmentTime(time) {
 }
 
 function getAppointmentStatusKey(status) {
-    return status === 'completed' ? 'completed' : 'pending';
+    return status || 'scheduled';
 }
 
 function Doctor() {
@@ -75,9 +116,11 @@ function Doctor() {
     );
     const [profile, setProfile] = useState(null);
     const [patients, setPatients] = useState([]);
-    const [visits, setVisits] = useState([]);
+    const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [appointmentLoading, setAppointmentLoading] = useState(true);
     const [error, setError] = useState('');
+    const [todayAppointmentCount, setTodayAppointmentCount] = useState(0);
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [newVisitPatient, setNewVisitPatient] = useState(null);
     const [selectedVisitId, setSelectedVisitId] = useState(null);
@@ -85,25 +128,28 @@ function Doctor() {
     const [visitRefreshKey, setVisitRefreshKey] = useState(0);
     const [showScanner, setShowScanner] = useState(false);
     const [scanProcessing, setScanProcessing] = useState(false);
+    const [selectedQueueDate, setSelectedQueueDate] = useState(() => formatDateValue());
+    const [queueViewMode, setQueueViewMode] = useState('list');
+    const [calendarMonth, setCalendarMonth] = useState(() => getMonthStart());
 
     const authHeaders = useCallback(() => ({
         Authorization: `Bearer ${localStorage.getItem('access')}`,
     }), []);
+
+    const todayValue = useMemo(() => formatDateValue(), []);
 
     const loadDashboardData = useCallback(async () => {
         setLoading(true);
         setError('');
 
         try {
-            const [profileResponse, patientsResponse, visitsResponse] = await Promise.all([
+            const [profileResponse, patientsResponse] = await Promise.all([
                 axios.get(`${API}/users/profile/`, { headers: authHeaders() }),
                 axios.get(`${API}/patients/`, { headers: authHeaders() }),
-                axios.get(`${API}/visits/`, { headers: authHeaders() }),
             ]);
 
             setProfile(profileResponse.data);
             setPatients(Array.isArray(patientsResponse.data) ? patientsResponse.data : []);
-            setVisits(Array.isArray(visitsResponse.data) ? visitsResponse.data : []);
         } catch (err) {
             console.error('Error loading doctor dashboard:', err);
             setError('Unable to load dashboard data. Please try again.');
@@ -111,6 +157,46 @@ function Doctor() {
             setLoading(false);
         }
     }, [authHeaders]);
+
+    const loadAppointmentData = useCallback(async () => {
+        setAppointmentLoading(true);
+        const monthBounds = getMonthBounds(calendarMonth);
+
+        try {
+            const requestConfig = {
+                headers: authHeaders(),
+                params: {
+                    mine: 'true',
+                    follow_up_only: 'true',
+                    status: 'scheduled',
+                },
+            };
+            const [monthResponse, todayResponse] = await Promise.all([
+                axios.get(`${API}/appointments/`, {
+                    ...requestConfig,
+                    params: {
+                        ...requestConfig.params,
+                        ...monthBounds,
+                    },
+                }),
+                axios.get(`${API}/appointments/`, {
+                    ...requestConfig,
+                    params: {
+                        ...requestConfig.params,
+                        date: todayValue,
+                    },
+                }),
+            ]);
+
+            setAppointments(Array.isArray(monthResponse.data) ? monthResponse.data : []);
+            setTodayAppointmentCount(Array.isArray(todayResponse.data) ? todayResponse.data.length : 0);
+        } catch (err) {
+            console.error('Error loading doctor appointments:', err);
+            setError('Unable to load appointment queue. Please try again.');
+        } finally {
+            setAppointmentLoading(false);
+        }
+    }, [authHeaders, calendarMonth, todayValue]);
 
     useEffect(() => {
         loadDashboardData();
@@ -121,8 +207,10 @@ function Doctor() {
         return () => clearInterval(timer);
     }, [loadDashboardData]);
 
-    const today = useMemo(() => new Date(), []);
-    const todayValue = useMemo(() => formatDateValue(today), [today]);
+    useEffect(() => {
+        loadAppointmentData();
+    }, [loadAppointmentData]);
+
     const recentPatients = useMemo(() => sortByNewest(patients), [patients]);
     const patientById = useMemo(() => {
         const map = new Map();
@@ -130,19 +218,120 @@ function Doctor() {
         return map;
     }, [patients]);
 
-    const todaysAppointments = useMemo(() => {
-        if (!profile?.id) return [];
-        return visits
+    const doctorAppointments = useMemo(() => {
+        if (!profile?.id) return appointments;
+        return appointments
             .filter((visit) => (
-                visit.has_follow_up
-                && visit.follow_up_summary?.appointment_date === todayValue
-                && Number(visit.follow_up_summary?.doctor_id) === Number(profile.id)
+                Number(visit.doctor) === Number(profile.id)
             ))
             .sort((a, b) => (
-                String(a.follow_up_summary?.appointment_time || '')
-                    .localeCompare(String(b.follow_up_summary?.appointment_time || ''))
+                String(a.appointment_date || '').localeCompare(String(b.appointment_date || ''))
+                || String(a.appointment_time || '').localeCompare(String(b.appointment_time || ''))
             ));
-    }, [profile?.id, todayValue, visits]);
+    }, [appointments, profile?.id]);
+
+    const selectedDateAppointments = useMemo(() => (
+        doctorAppointments
+            .filter((visit) => visit.appointment_date === selectedQueueDate)
+            .sort((a, b) => (
+                String(a.appointment_time || '').localeCompare(String(b.appointment_time || ''))
+            ))
+    ), [doctorAppointments, selectedQueueDate]);
+
+    const appointmentCountByDate = useMemo(() => {
+        const counts = {};
+        doctorAppointments.forEach((visit) => {
+            const date = visit.appointment_date;
+            if (date) counts[date] = (counts[date] || 0) + 1;
+        });
+        return counts;
+    }, [doctorAppointments]);
+
+    const calendarDays = useMemo(() => buildCalendarDays(calendarMonth), [calendarMonth]);
+    const selectedDateLabel = useMemo(() => formatQueueDateValue(selectedQueueDate), [selectedQueueDate]);
+
+    const handleQueueDateChange = (value) => {
+        setSelectedQueueDate(value);
+        setCalendarMonth(getMonthStart(value));
+    };
+
+    const shiftCalendarMonth = (amount) => {
+        setCalendarMonth((current) => {
+            const nextMonth = new Date(current.getFullYear(), current.getMonth() + amount, 1);
+            setSelectedQueueDate(formatDateValue(nextMonth));
+            return nextMonth;
+        });
+    };
+
+    const handleAppointmentStatusChange = async (appointment, nextStatus) => {
+        const actionLabel = nextStatus === 'cancelled' ? 'cancel this appointment' : 'mark this appointment as no show';
+        const shouldUpdate = window.confirm(`Are you sure you want to ${actionLabel}?`);
+        if (!shouldUpdate) return;
+
+        try {
+            await axios.patch(`${API}/appointments/${appointment.id}/`, { status: nextStatus }, {
+                headers: authHeaders(),
+            });
+            loadAppointmentData();
+        } catch (err) {
+            console.error('Error updating appointment status:', err);
+            alert('Unable to update appointment status. Please try again.');
+        }
+    };
+
+    const renderQueueList = (appointments, emptyLabel) => (
+        appointments.length > 0 ? (
+            <div className="doctor-queue-list">
+                {appointments.map((appointment) => {
+                    const patient = patientById.get(appointment.patient);
+                    return (
+                        <div className="doctor-queue-item" key={appointment.id}>
+                            <div>
+                                <strong>{appointment.patient_name || patient?.full_name || 'Patient'}</strong>
+                                <span>{formatAppointmentTime(appointment.appointment_time)}</span>
+                                <span>{appointment.appointment_type_display || appointment.appointment_type || 'Appointment'}</span>
+                                <span className={`doctor-status-badge ${getAppointmentStatusKey(appointment.status)}`}>
+                                    {appointment.status_display || 'Scheduled'}
+                                </span>
+                            </div>
+                            <div className="doctor-queue-actions">
+                                <button
+                                    type="button"
+                                    onClick={() => openPatient(patient)}
+                                    disabled={!patient}
+                                >
+                                    View Patient
+                                </button>
+                                {appointment.status === 'scheduled' && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            className="danger"
+                                            onClick={() => handleAppointmentStatusChange(appointment, 'cancelled')}
+                                        >
+                                            <XCircle size={12} /> Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="warning"
+                                            onClick={() => handleAppointmentStatusChange(appointment, 'no_show')}
+                                        >
+                                            <UserX size={12} /> No Show
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        ) : (
+            <div className="doctor-empty-queue">
+                <Calendar size={48} />
+                <strong>{emptyLabel}</strong>
+            </div>
+        )
+    );
 
     const recentPatientCount = useMemo(
         () => patients.filter((patient) => isRecent(patient.created_at || patient.updated_at)).length,
@@ -191,7 +380,9 @@ function Doctor() {
                 },
             });
         } catch (err) {
-            if (err.response?.status === 404) {
+            if (err.response?.status === 409) {
+                alert(err.response.data?.detail || 'This referral slip has already been used. Please get a new referral slip.');
+            } else if (err.response?.status === 404) {
                 alert(`Referral "${code}" was not found in the system.`);
             } else {
                 console.error('QR lookup failed:', err);
@@ -213,6 +404,7 @@ function Doctor() {
         setSelectedPatient(newVisitPatient);
         setNewVisitPatient(null);
         loadDashboardData();
+        loadAppointmentData();
     };
 
     if (selectedVisitId && selectedPatient) {
@@ -281,7 +473,7 @@ function Doctor() {
 
                     <div className="doctor-summary-card">
                         <div>
-                            <strong>{loading ? '...' : todaysAppointments.length}</strong>
+                            <strong>{loading ? '...' : todayAppointmentCount}</strong>
                             <span>Today's Appointment</span>
                         </div>
                         <div className="doctor-summary-icon purple"><Calendar size={20} /></div>
@@ -313,46 +505,79 @@ function Doctor() {
                 <div className="doctor-section-label"><Calendar size={12} /> Appointment Queue and Patient Summary</div>
                 <div className="doctor-main-grid">
                     <div className="doctor-queue-card">
-                        <div className="doctor-card-header">
-                            <h2><List size={16} /> Today's Queue - {formatQueueDate(today)}</h2>
+                        <div className="doctor-card-header doctor-card-header--queue">
+                            <h2><List size={16} /> Appointment Queue - {selectedDateLabel}</h2>
+                            <div className="doctor-queue-controls">
+                                <input
+                                    type="date"
+                                    className="doctor-date-input"
+                                    value={selectedQueueDate}
+                                    onChange={(e) => handleQueueDateChange(e.target.value)}
+                                />
+                                <div className="doctor-view-toggle">
+                                    <button
+                                        type="button"
+                                        className={queueViewMode === 'list' ? 'active' : ''}
+                                        onClick={() => setQueueViewMode('list')}
+                                    >
+                                        List
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={queueViewMode === 'calendar' ? 'active' : ''}
+                                        onClick={() => setQueueViewMode('calendar')}
+                                    >
+                                        Calendar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        {loading ? (
+                        {(loading || appointmentLoading) ? (
                             <div className="doctor-empty-queue">
                                 <Calendar size={44} />
                                 <strong>Loading appointments...</strong>
                             </div>
-                        ) : todaysAppointments.length > 0 ? (
-                            <div className="doctor-queue-list">
-                                {todaysAppointments.map((visit) => {
-                                    const patient = patientById.get(visit.patient);
-                                    const followUp = visit.follow_up_summary || {};
-                                    return (
-                                        <div className="doctor-queue-item" key={visit.id}>
-                                            <div>
-                                                <strong>{visit.patient_name || patient?.full_name || 'Patient'}</strong>
-                                                <span>{formatAppointmentTime(followUp.appointment_time)}</span>
-                                                <span>{followUp.appointment_type_display || followUp.appointment_type || 'Appointment'}</span>
-                                                <span className={`doctor-status-badge ${getAppointmentStatusKey(followUp.status)}`}>
-                                                    {followUp.status_display || (followUp.status === 'completed' ? 'Completed' : 'Pending')}
-                                                </span>
-                                            </div>
+                        ) : queueViewMode === 'calendar' ? (
+                            <div className="doctor-calendar-panel">
+                                <div className="doctor-calendar-header">
+                                    <button type="button" onClick={() => shiftCalendarMonth(-1)}>Prev</button>
+                                    <strong>{calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</strong>
+                                    <button type="button" onClick={() => shiftCalendarMonth(1)}>Next</button>
+                                </div>
+                                <div className="doctor-calendar-grid">
+                                    {WEEK_DAYS.map((day) => (
+                                        <div key={day} className="doctor-calendar-weekday">{day}</div>
+                                    ))}
+                                    {calendarDays.map((day) => {
+                                        const count = appointmentCountByDate[day.value] || 0;
+                                        const isToday = day.value === todayValue;
+                                        const isSelected = day.value === selectedQueueDate;
+                                        return (
                                             <button
+                                                key={day.value}
                                                 type="button"
-                                                onClick={() => openPatient(patient)}
-                                                disabled={!patient}
+                                                className={[
+                                                    'doctor-calendar-day',
+                                                    day.inMonth ? '' : 'muted',
+                                                    isToday ? 'today' : '',
+                                                    isSelected ? 'selected' : '',
+                                                ].filter(Boolean).join(' ')}
+                                                onClick={() => handleQueueDateChange(day.value)}
                                             >
-                                                View Patient
+                                                <span>{day.day}</span>
+                                                {count > 0 && <em>{count}</em>}
                                             </button>
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    })}
+                                </div>
+                                {renderQueueList(selectedDateAppointments, 'No Appointments on Selected Date')}
                             </div>
                         ) : (
-                            <div className="doctor-empty-queue">
-                                <Calendar size={48} />
-                                <strong>No Appointments Today</strong>
-                            </div>
+                            renderQueueList(
+                                selectedDateAppointments,
+                                selectedQueueDate === todayValue ? 'No Appointments Today' : 'No Appointments on Selected Date'
+                            )
                         )}
                     </div>
 

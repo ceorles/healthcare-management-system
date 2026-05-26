@@ -15,10 +15,20 @@ class AuditLogSerializer(serializers.ModelSerializer):
     target_type = serializers.CharField(source='model_name', read_only=True)
     target_id = serializers.CharField(source='object_id', read_only=True)
     hash_short = serializers.SerializerMethodField()
+    previous_hash_short = serializers.SerializerMethodField()
 
     class Meta:
         model = AuditLog
-        fields = '__all__'
+        fields = (
+            'id', 'user', 'username', 'user_name', 'role',
+            'action', 'action_type', 'model_name', 'target_type',
+            'object_id', 'target_id', 'description', 'ip_address',
+            'timestamp', 'record_hash', 'hash_short', 'previous_hash_short',
+        )
+        read_only_fields = (
+            'id', 'user', 'action', 'model_name', 'object_id',
+            'description', 'ip_address', 'timestamp', 'record_hash',
+        )
 
     def get_user_name(self, obj):
         if not obj.user:
@@ -44,6 +54,11 @@ class AuditLogSerializer(serializers.ModelSerializer):
         if not obj.record_hash:
             return ''
         return f'{obj.record_hash[:16]}...'
+
+    def get_previous_hash_short(self, obj):
+        if not obj.previous_hash:
+            return 'Genesis'
+        return f'{obj.previous_hash[:16]}...'
 
 # LANDING PAGE
 class ClinicInfoSerializer(serializers.ModelSerializer):

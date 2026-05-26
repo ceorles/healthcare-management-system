@@ -167,6 +167,10 @@
     border-bottom: 1px solid var(--border);
 }
 
+.doctor-card-header--queue {
+    align-items: flex-start;
+}
+
 .doctor-card-header h2,
 .doctor-recent-header h2 {
     display: flex;
@@ -188,6 +192,47 @@
     font-weight: 600;
     font-family: var(--font-body);
     cursor: pointer;
+}
+
+.doctor-queue-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.doctor-date-input {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text);
+    background: white;
+}
+
+.doctor-view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.doctor-view-toggle button {
+    border: none;
+    background: white;
+    color: var(--text);
+    padding: 7px 10px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.doctor-view-toggle button.active {
+    background: #eff6ff;
+    color: #2563eb;
 }
 
 .doctor-recent-header button:hover {
@@ -229,6 +274,95 @@
 .doctor-queue-list::-webkit-scrollbar-track,
 .doctor-queue-list::-webkit-scrollbar-thumb {
     background: transparent;
+}
+
+.doctor-calendar-panel {
+    padding: 12px 16px;
+}
+
+.doctor-calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.doctor-calendar-header strong {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.doctor-calendar-header button {
+    background: white;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.doctor-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.doctor-calendar-weekday {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.doctor-calendar-day {
+    min-height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+
+.doctor-calendar-day.muted {
+    color: #cbd5e1;
+    background: #f9fafb;
+}
+
+.doctor-calendar-day.today {
+    border-color: #93c5fd;
+}
+
+.doctor-calendar-day.selected {
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.doctor-calendar-day em {
+    position: absolute;
+    right: 4px;
+    bottom: 3px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--green-mid);
+    color: white;
+    font-size: 10px;
+    font-style: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .doctor-queue-item {
@@ -277,9 +411,28 @@
     color: #c2410c;
 }
 
+.doctor-status-badge.scheduled {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
 .doctor-status-badge.completed {
     background: #dcfce7;
     color: #15803d;
+}
+
+.doctor-status-badge.cancelled,
+.doctor-status-badge.no_show {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.doctor-queue-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .doctor-queue-item button {
@@ -293,6 +446,24 @@
     font-family: var(--font-body);
     cursor: pointer;
     white-space: nowrap;
+}
+
+.doctor-queue-item button.danger {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.doctor-queue-item button.warning {
+    color: #92400e;
+    border-color: #fde68a;
+    background: #fffbeb;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .doctor-queue-item button:hover:not(:disabled) {
@@ -403,6 +574,20 @@
         flex-direction: column;
     }
 
+    .doctor-queue-controls,
+    .doctor-date-input,
+    .doctor-view-toggle {
+        width: 100%;
+    }
+
+    .doctor-view-toggle button {
+        flex: 1;
+    }
+
+    .doctor-calendar-grid {
+        gap: 4px;
+    }
+
     .doctor-recent-header button {
         width: 100%;
     }
@@ -417,6 +602,10 @@
     }
 
     .doctor-queue-item button {
+        width: 100%;
+    }
+
+    .doctor-queue-actions {
         width: 100%;
     }
 

@@ -47,6 +47,63 @@
 }
 
 /* --- FILTER BAR --- */
+.staff-accounts-card {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+    overflow: hidden;
+    min-height: 0;
+}
+
+.staff-accounts-card .page-header,
+.staff-accounts-filter-bar,
+.staff-accounts-table-header {
+    flex-shrink: 0;
+}
+
+.staff-accounts-filter-bar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: white;
+}
+
+.staff-accounts-table-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: white;
+}
+
+.staff-records-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.staff-records-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.staff-records-scroll::-webkit-scrollbar-track,
+.staff-records-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.staff-records-scroll .patient-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
 .staff-filter-bar {
     background: white;
     padding: 20px 24px;
@@ -363,7 +420,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
 }
 
 .btn-staff-verify {
@@ -397,6 +454,15 @@
 }
 
 @media (max-width: 600px) {
+    .staff-accounts-card {
+        height: calc(100vh - 92px);
+        max-height: calc(100vh - 92px);
+    }
+
+    .staff-records-scroll {
+        max-height: none;
+    }
+
     .staff-details-list li {
         grid-template-columns: 1fr;
         gap: 4px;

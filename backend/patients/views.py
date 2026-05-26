@@ -1,13 +1,15 @@
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
+from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from .models import Patient
 from .serializers import PatientSerializer
 
 from django.db.models import Count
+from django.db.models.functions import Trim
 from rest_framework.decorators import api_view, permission_classes # action
 from rest_framework.response import Response
 from core.audit import audit_log
@@ -29,7 +31,42 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     # Automatically set the "created_by" to the logged-in user
     def perform_create(self, serializer):
-        patient = serializer.save(created_by=self.request.user)
+        referral_id = self.request.data.get('referral_id')
+
+        with transaction.atomic():
+            referral = None
+            if referral_id:
+                from referrals.models import Referral
+
+                referral = Referral.objects.select_for_update().filter(
+                    id=referral_id,
+                    is_deleted=False,
+                ).first()
+                if not referral:
+                    raise ValidationError({'referral_id': 'Referral not found or already deleted.'})
+                if referral.patient_id:
+                    raise ValidationError({'referral_id': 'This referral is already linked to a patient record.'})
+
+            patient = serializer.save(created_by=self.request.user)
+
+            if referral:
+                referral.patient = patient
+                referral.barangay = patient.barangay
+                referral.walkin_name = ''
+                referral.walkin_age = ''
+                referral.walkin_address = ''
+                referral.save(update_fields=[
+                    'patient', 'barangay', 'walkin_name', 'walkin_age',
+                    'walkin_address', 'updated_at',
+                ])
+                audit_log(
+                    self.request,
+                    'update',
+                    'Referral',
+                    f'Linked walk-in referral {referral.referral_code} to patient record: {patient.full_name}',
+                    target_id=referral.id,
+                )
+
         audit_log(
             self.request,
             'create',
@@ -113,5 +150,47 @@ class PatientViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_map_data(request):
+    disease = (request.query_params.get('disease') or '').strip()
+
+    if disease:
+        from consultations.models import PatientVisit
+
+        rows = (
+            PatientVisit.objects
+            .filter(patient__is_deleted=False)
+            .annotate(clean_diagnosis=Trim('diagnosis'))
+            .filter(clean_diagnosis__iexact=disease)
+            .values('patient__barangay')
+            .annotate(count=Count('patient_id', distinct=True))
+            .order_by('-count', 'patient__barangay')
+        )
+        data = [
+            {'barangay': row['patient__barangay'], 'count': row['count']}
+            for row in rows
+            if row['patient__barangay']
+        ]
+        return Response(data)
+
     data = Patient.objects.filter(is_deleted=False).values('barangay').annotate(count=Count('id')).order_by('-count')
     return Response(list(data))
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_diseases_data(request):
+    from consultations.models import PatientVisit
+
+    diagnoses = (
+        PatientVisit.objects
+        .filter(patient__is_deleted=False)
+        .annotate(clean_diagnosis=Trim('diagnosis'))
+        .exclude(clean_diagnosis='')
+        .values_list('clean_diagnosis', flat=True)
+    )
+    unique_diseases = {}
+    for diagnosis in diagnoses:
+        normalized = (diagnosis or '').strip()
+        if normalized:
+            unique_diseases.setdefault(normalized.lower(), normalized)
+
+    return Response(sorted(unique_diseases.values(), key=str.lower))

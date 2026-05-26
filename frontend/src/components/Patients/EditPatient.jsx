@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Clock, ChevronLeft } from 'lucide-react';
 import { formatPatientAge, getTodayDateInputValue, isFutureBirthDate } from '../../utils/age.js';
+import { BLOOD_TYPES, formatPhilHealthNumber, isValidPhilHealthNumber, normalizeBloodType } from '../../utils/patientForm.js';
 import '../../assets/css/Patients.css';
 
 const BARANGAYS = [
@@ -26,7 +27,7 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
         sex: patient.sex || 'M',
         civil_status: patient.civil_status || 'single',
         contact_number: patient.contact_number || '',
-        blood_type: patient.blood_type || '',
+        blood_type: normalizeBloodType(patient.blood_type),
         address: patient.address || '',
         barangay: patient.barangay || 'Poblacion 1',
         guardian_name: patient.guardian_name || '',
@@ -43,13 +44,21 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: name === 'philhealth_number' ? formatPhilHealthNumber(value) : value,
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isFutureBirthDate(formData.date_of_birth)) {
             alert('Date of Birth cannot be in the future.');
+            return;
+        }
+        if (!isValidPhilHealthNumber(formData.philhealth_number)) {
+            alert('PhilHealth Number must follow this format: XX-XXXXXXXXX-X');
             return;
         }
         try {
@@ -111,7 +120,11 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
 
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" value={formData.contact_number} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Blood Type</label><input type="text" name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Blood Type</label>
+                            <select name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange}>
+                                {BLOOD_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="form-grid grid-2-address form-grid--last">
@@ -138,7 +151,7 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
                     </div>
 
                     <div className="form-grid grid-2 form-grid--last">
-                        <div className="input-group"><label>PhilHealth Number</label><input type="text" name="philhealth_number" className="form-input" value={formData.philhealth_number} onChange={handleChange} /></div>
+                        <div className="input-group"><label>PhilHealth Number</label><input type="text" name="philhealth_number" className="form-input" placeholder="XX-XXXXXXXXX-X" maxLength="14" value={formData.philhealth_number} onChange={handleChange} /></div>
                         <div className="input-group"><label>Known Allergies</label><input type="text" name="allergies" className="form-input" value={formData.allergies} onChange={handleChange} /></div>
                     </div>
                 </div>

@@ -69,6 +69,11 @@ export default function Referrals({
         return new Date(dateString).toLocaleDateString('en-US', options);
     };
 
+    const getIntegrityBadge = (status) => {
+        const isVerified = status === 'Verified';
+        return <span className={`ref-integrity-badge ${isVerified ? 'verified' : 'tampered'}`}>{isVerified ? 'Verified' : 'Tampered'}</span>;
+    };
+
     const handleQrScan = useCallback(async (decodedText) => {
         const code = parseReferralCodeFromQr(decodedText);
         if (!code) {
@@ -112,7 +117,9 @@ export default function Referrals({
                 },
             });
         } catch (error) {
-            if (error.response?.status === 404) {
+            if (error.response?.status === 409) {
+                alert(error.response.data?.detail || 'This referral slip has already been used. Please get a new referral slip.');
+            } else if (error.response?.status === 404) {
                 setSearchTerm(code);
                 alert(`Referral "${code}" was not found in the system.`);
             } else {
@@ -180,6 +187,7 @@ export default function Referrals({
                                 <th>TO</th>
                                 <th>BY</th>
                                 <th>DATE</th>
+                                <th>INTEGRITY</th>
                                 <th style={{ textAlign: 'center' }}>ACTIONS</th>
                             </tr>
                         </thead>
@@ -192,6 +200,7 @@ export default function Referrals({
                                     <td className="ref-to-cell" title={r.referred_to}>{r.referred_to}</td>
                                     <td>{r.referred_by_name || 'Admin'}</td>
                                     <td>{formatDate(r.created_at)}</td>
+                                    <td>{getIntegrityBadge(r.integrity_status)}</td>
                                     <td>
                                         <div className="ref-action-btns">
                                             <button type="button" className="ref-btn-action view" onClick={() => onView(r)} title="View"><Eye size={16}/></button>
@@ -204,7 +213,7 @@ export default function Referrals({
                                     </td>
                                 </tr>
                             )) : (
-                                <tr><td colSpan="7" className="ref-empty">No referrals found.</td></tr>
+                                <tr><td colSpan="8" className="ref-empty">No referrals found.</td></tr>
                             )}
                         </tbody>
                     </table>

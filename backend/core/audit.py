@@ -9,7 +9,7 @@ def get_client_ip(request):
     return request.META.get('REMOTE_ADDR')
 
 
-def audit_log(request, action, target_type, description, target_id='', user=None):
+def audit_log(request, action, target_type, description, target_id='', user=None, metadata=None):
     actor = user or getattr(request, 'user', None)
     if not actor or not actor.is_authenticated:
         return None
@@ -21,4 +21,5 @@ def audit_log(request, action, target_type, description, target_id='', user=None
         object_id=str(target_id or ''),
         description=description,
         ip_address=get_client_ip(request),
+        metadata=metadata or {},
     )

@@ -3,7 +3,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from appointments.models import Appointment
 from core.audit import audit_log
 from .models import VitalSigns, PatientVisit
 from .serializers import (
@@ -36,7 +35,6 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
         return PatientVisitSerializer
 
     def get_queryset(self):
-        Appointment.complete_past_due()
         qs = super().get_queryset()
         patient_id = self.request.query_params.get('patient')
         if patient_id:

@@ -42,6 +42,11 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete, canDelete
         return matchesSearch && matchesBarangay;
     });
 
+    const getIntegrityBadge = (status) => {
+        const isVerified = status === 'Verified';
+        return <span className={`integrity-badge ${isVerified ? 'verified' : 'tampered'}`}>{isVerified ? 'Verified' : 'Tampered'}</span>;
+    };
+
     return (
         <div className="patients-page">
             {/* Header */}
@@ -87,6 +92,7 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete, canDelete
                             <th>AGE / SEX</th>
                             <th>BARANGAY</th>
                             <th>CONTACT</th>
+                            <th>INTEGRITY</th>
                             <th style={{ textAlign: 'center' }}>ACTIONS</th>
                         </tr>
                     </thead>
@@ -98,6 +104,7 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete, canDelete
                                 <td>{p.age || '--'} / {p.sex === 'M' ? 'Male' : 'Female'}</td>
                                 <td>{p.barangay}</td>
                                 <td>{p.contact_number || 'N/A'}</td>
+                                <td>{getIntegrityBadge(p.integrity_status)}</td>
                                 <td>
                                     <div className="action-btns" style={{ justifyContent: 'center' }}>
                                         <button className="btn-action view" onClick={() => onView(p)}><Eye size={16}/></button>
@@ -109,7 +116,7 @@ export default function Patients({ onAddNew, onView, onEdit, onDelete, canDelete
                                 </td>
                             </tr>
                         )) : (
-                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No patients found.</td></tr>
+                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: 'var(--muted)' }}>No patients found.</td></tr>
                         )}
                     </tbody>
                 </table>

@@ -1,5 +1,6 @@
 from django.db import models
 import hashlib
+import json
 from core.constants import BARANGAYS
 # from users.models import User
 from django.conf import settings
@@ -17,26 +18,82 @@ class AuditLog(models.Model):
     description = models.TextField()
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    record_hash = models.CharField(max_length=64, blank=True)
+    previous_hash = models.CharField(max_length=64, blank=True, db_index=True)
+    record_hash = models.CharField(max_length=64, blank=True, db_index=True)
+    metadata = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ['-timestamp']
 
+    def canonical_payload(self):
+        return {
+            'id': self.pk,
+            'user_id': self.user_id,
+            'action': self.action,
+            'model_name': self.model_name,
+            'object_id': self.object_id,
+            'description': self.description,
+            'ip_address': self.ip_address,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else '',
+            'previous_hash': self.previous_hash or '',
+            'metadata': self.metadata or {},
+        }
+
+    def calculate_hash(self):
+        payload = json.dumps(self.canonical_payload(), sort_keys=True, separators=(',', ':'), default=str)
+        return hashlib.sha256(payload.encode('utf-8')).hexdigest()
+
     def save(self, *args, **kwargs):
-        data = f"{self.user_id}{self.action}{self.model_name}{self.object_id}{self.description}{self.timestamp}"
-        self.record_hash = hashlib.sha256(data.encode()).hexdigest()
+        is_create = self.pk is None
+        if self.pk:
+            original = type(self).objects.filter(pk=self.pk).only('record_hash', 'previous_hash').first()
+            if original and original.record_hash and self.record_hash == original.record_hash:
+                super().save(*args, **kwargs)
+                return
+
+        if not self.previous_hash:
+            previous = type(self).objects.exclude(pk=self.pk).order_by('-id').only('record_hash').first()
+            self.previous_hash = previous.record_hash if previous else ''
+
         super().save(*args, **kwargs)
 
+        expected_hash = self.calculate_hash()
+        if self.record_hash != expected_hash:
+            type(self).objects.filter(pk=self.pk).update(record_hash=expected_hash)
+            self.record_hash = expected_hash
+
+        if is_create:
+            AuditChainState.objects.update_or_create(
+                pk=1,
+                defaults={
+                    'latest_log_id': self.pk,
+                    'latest_hash': self.record_hash,
+                    'total_logs': type(self).objects.count(),
+                },
+            )
+
     @classmethod
-    def log(cls, user, action, model_name, object_id='', description='', request=None):
+    def log(cls, user, action, model_name, object_id='', description='', request=None, metadata=None):
         ip = None
         if request:
             forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
             ip = forwarded.split(',')[0].strip() if forwarded else request.META.get('REMOTE_ADDR')
         cls.objects.create(
             user=user, action=action, model_name=model_name,
-            object_id=str(object_id), description=description, ip_address=ip
+            object_id=str(object_id), description=description, ip_address=ip,
+            metadata=metadata or {},
         )
+
+
+class AuditChainState(models.Model):
+    latest_log_id = models.PositiveIntegerField(null=True, blank=True)
+    latest_hash = models.CharField(max_length=64, blank=True)
+    total_logs = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Audit Chain State'
+        verbose_name_plural = 'Audit Chain State'
 
 
 class HealthAlert(models.Model):

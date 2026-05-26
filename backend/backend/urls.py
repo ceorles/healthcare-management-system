@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from users.authentication import CustomTokenObtainPairView
 from rest_framework.routers import DefaultRouter
 
-from patients.views import PatientViewSet, get_map_data 
+from patients.views import PatientViewSet, get_diseases_data, get_map_data 
 from appointments.views import AppointmentViewSet
 from consultations.views import VitalSignsViewSet, PatientVisitViewSet
 from prescriptions.views import PrescriptionViewSet
@@ -68,6 +68,7 @@ urlpatterns =[
     path('api/users/', include('users.urls')), 
 
     path('api/patients/map-data/', get_map_data, name='map-data'),
+    path('api/patients/diseases/', get_diseases_data, name='diseases-data'),
     path('api/analytics/dashboard/', AnalyticsDashboardView.as_view(), name='analytics-dashboard'),
 
     # API bundled

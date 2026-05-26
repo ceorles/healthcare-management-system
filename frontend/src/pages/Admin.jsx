@@ -7,12 +7,13 @@ import {
     ClipboardList,
     Clock,
     FileText,
-    Grid2X2,
+    // Grid2X2,
     Map,
     MapPin,
     QrCode,
     User,
     Users,
+    LayoutDashboard,
 } from 'lucide-react';
 import {
     CartesianGrid,
@@ -28,6 +29,7 @@ import {
     YAxis,
 } from 'recharts';
 import ReferralQRScanner from '../components/Referrals/ReferralQRScanner.jsx';
+import { getDiseaseColor, getTopDiseaseLegendPayload } from '../utils/diseaseChart.js';
 import { parseReferralCodeFromQr } from '../utils/patientPrefill.js';
 import '../assets/css/AdminDashboard.css';
 import '../assets/css/Referrals.css';
@@ -43,7 +45,6 @@ const CHART_ANIM = {
 const LINE_COLOR = '#2d6a4f';
 const SEX_COLORS = { Male: '#3b82f6', Female: '#ec4899' };
 const ROLE_COLORS = { Admin: '#7c3aed', Doctor: '#3b82f6', Nurse: '#ec4899' };
-const DISEASE_COLORS = ['#3b82f6', '#2d6a4f', '#7c3aed', '#ec4899', '#f59e0b', '#06b6d4', '#84cc16', '#6366f1'];
 
 function SectionLabel({ icon: Icon, children }) {
     return (
@@ -70,6 +71,36 @@ function SummaryCard({ value, label, iconClass, Icon }) {
 
 function EmptyChart({ message }) {
     return <div className="admin-empty-chart">{message}</div>;
+}
+
+function DiseaseLegend({ diseases }) {
+    const payload = getTopDiseaseLegendPayload(diseases);
+
+    return (
+        <ul className="recharts-default-legend" style={{ padding: 0, margin: 0, textAlign: 'center' }}>
+            {payload.map((entry) => (
+                <li
+                    key={entry.value}
+                    className="recharts-legend-item legend-item-0"
+                    style={{ display: 'inline-block', marginRight: 10 }}
+                >
+                    <span
+                        className="recharts-legend-icon"
+                        style={{
+                            display: 'inline-block',
+                            width: 10,
+                            height: 10,
+                            backgroundColor: entry.color,
+                            marginRight: 4,
+                        }}
+                    />
+                    <span className="recharts-legend-item-text" style={{ color: entry.color }}>
+                        {entry.value}
+                    </span>
+                </li>
+            ))}
+        </ul>
+    );
 }
 
 function Admin() {
@@ -155,7 +186,9 @@ function Admin() {
                 },
             });
         } catch (err) {
-            if (err.response?.status === 404) {
+            if (err.response?.status === 409) {
+                alert(err.response.data?.detail || 'This referral slip has already been used. Please get a new referral slip.');
+            } else if (err.response?.status === 404) {
                 alert(`Referral "${code}" was not found in the system.`);
             } else {
                 console.error('QR lookup failed:', err);
@@ -166,8 +199,8 @@ function Admin() {
         }
     }, [navigate]);
 
-    const sixMonthVisits = useMemo(() => (
-        dashboardData?.monthly_visits?.slice(-6) || []
+    const monthlyPatientVisits = useMemo(() => (
+        dashboardData?.monthly_visits || []
     ), [dashboardData]);
 
     const topBarangays = useMemo(() => (
@@ -211,14 +244,14 @@ function Admin() {
         <div className="admin-dashboard-page">
             <div className="admin-dashboard-header">
                 <h1 className="page-title">
-                    <Grid2X2 size={22} /> Admin Dashboard
+                    <LayoutDashboard size={20} /> Admin Dashboard
                 </h1>
                 <div className="page-time">
                     <Clock size={16} /> {currentTime}
                 </div>
             </div>
 
-            <SectionLabel icon={Grid2X2}>Summary Overview</SectionLabel>
+            <SectionLabel icon={LayoutDashboard}>Summary Overview</SectionLabel>
             <div className="admin-summary-grid">
                 <SummaryCard value={summary.total_patients ?? 0} label="Total Patients" iconClass="patients" Icon={User} />
                 <SummaryCard value={summary.total_staff ?? 0} label="Staff Accounts" iconClass="staff" Icon={Users} />
@@ -240,15 +273,15 @@ function Admin() {
             <div className="admin-analytics-layout">
                 <div className="admin-card admin-trends-card">
                     <div className="admin-card-header">
-                        <h3><BarChart3 size={16} /> Community Health Trends (6 Months)</h3>
-                        <button type="button" className="admin-outline-btn" onClick={() => navigate('/admin/map')}>
+                        <h3><BarChart3 size={16} /> Monthly Patient Visits</h3>
+                        {/* <button type="button" className="admin-outline-btn" onClick={() => navigate('/admin/map')}>
                             <Map size={14} /> GIS Map
-                        </button>
+                        </button> */}
                     </div>
-                    {sixMonthVisits.length > 0 ? (
+                    {monthlyPatientVisits.length > 0 ? (
                         <div className="admin-trends-chart">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={sixMonthVisits}>
+                                <LineChart data={monthlyPatientVisits}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                                     <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
@@ -313,12 +346,15 @@ function Admin() {
                                         paddingAngle={2}
                                         {...CHART_ANIM}
                                     >
-                                        {diseaseChartData.map((entry, index) => (
-                                            <Cell key={entry.name} fill={DISEASE_COLORS[index % DISEASE_COLORS.length]} />
+                                        {diseaseChartData.map((entry) => (
+                                            <Cell key={entry.name} fill={getDiseaseColor(entry.name)} />
                                         ))}
                                     </Pie>
                                     <Tooltip />
-                                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                                    <Legend
+                                        content={() => <DiseaseLegend diseases={diseaseChartData} />}
+                                        wrapperStyle={{ fontSize: 11 }}
+                                    />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>

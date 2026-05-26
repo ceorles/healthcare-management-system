@@ -48,6 +48,19 @@ export default function AdminPatients({
     const handleViewVisit = (visitId) => { setSelectedVisitId(visitId); setCurrentView('viewVisit'); };
     const handleViewReferral = (referralId) => { setSelectedReferralId(referralId); setCurrentView('viewReferral'); };
 
+    const handlePatientSaveSuccess = (patient) => {
+        if (newPatientPrefill?.referral_id && patient) {
+            setSelectedPatient(patient);
+            setNewPatientPrefill(null);
+            setVisitRefreshKey((k) => k + 1);
+            setCurrentView('view');
+            return;
+        }
+
+        setNewPatientPrefill(null);
+        setCurrentView('list');
+    };
+
     const handleVisitSaveSuccess = () => {
         setVisitRefreshKey((k) => k + 1);
         setCurrentView('view');
@@ -57,7 +70,7 @@ export default function AdminPatients({
         <div>
             {currentView === 'list' && (
                 <Patients 
-                    onAddNew={() => setCurrentView('new')} 
+                    onAddNew={() => { setNewPatientPrefill(null); setCurrentView('new'); }} 
                     onView={handleView}
                     onEdit={handleEdit}
                     onDelete={canDeletePatients ? handleDelete : undefined}
@@ -69,7 +82,7 @@ export default function AdminPatients({
                 <NewPatient
                     prefill={newPatientPrefill}
                     onCancel={() => { setNewPatientPrefill(null); setCurrentView('list'); }}
-                    onSaveSuccess={() => { setNewPatientPrefill(null); setCurrentView('list'); }}
+                    onSaveSuccess={handlePatientSaveSuccess}
                 />
             )}
 

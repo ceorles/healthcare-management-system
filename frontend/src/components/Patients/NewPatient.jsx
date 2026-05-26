@@ -3,12 +3,13 @@ import axios from 'axios';
 import { Clock, ChevronLeft } from 'lucide-react';
 import { formatPatientAge, getTodayDateInputValue, isFutureBirthDate } from '../../utils/age.js';
 import { buildPatientFormFromWalkinPrefill } from '../../utils/patientPrefill.js';
+import { BLOOD_TYPES, formatPhilHealthNumber, isValidPhilHealthNumber } from '../../utils/patientForm.js';
 import '../../assets/css/Patients.css';
 
 const EMPTY_FORM = {
     first_name: '', last_name: '', middle_name: '',
     date_of_birth: '', sex: 'M', civil_status: 'single',
-    contact_number: '', blood_type: '', address: '', barangay: 'Poblacion 1',
+    contact_number: '', blood_type: 'N/A', address: '', barangay: 'Poblacion 1',
     guardian_name: '', guardian_contact_info: '',
     emergency_contact_name: '', emergency_contact_number: '',
     philhealth_number: '', allergies: '',
@@ -46,7 +47,11 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: name === 'philhealth_number' ? formatPhilHealthNumber(value) : value,
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -55,12 +60,19 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
             alert('Date of Birth cannot be in the future.');
             return;
         }
+        if (!isValidPhilHealthNumber(formData.philhealth_number)) {
+            alert('PhilHealth Number must follow this format: XX-XXXXXXXXX-X');
+            return;
+        }
         try {
-            await axios.post('http://127.0.0.1:8000/api/patients/', formData, {
+            const payload = prefill?.referral_id
+                ? { ...formData, referral_id: prefill.referral_id }
+                : formData;
+            const response = await axios.post('http://127.0.0.1:8000/api/patients/', payload, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
             });
             alert("Patient Saved Successfully!");
-            onSaveSuccess();
+            onSaveSuccess(response.data);
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorDetails = Object.entries(error.response.data)
@@ -120,7 +132,11 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
 
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" value={formData.contact_number} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Blood Type</label><input type="text" name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Blood Type</label>
+                            <select name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange}>
+                                {BLOOD_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="form-grid grid-2-address form-grid--last">
@@ -147,7 +163,7 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
                     </div>
 
                     <div className="form-grid grid-2 form-grid--last">
-                        <div className="input-group"><label>PhilHealth Number</label><input type="text" name="philhealth_number" className="form-input" value={formData.philhealth_number} onChange={handleChange} /></div>
+                        <div className="input-group"><label>PhilHealth Number</label><input type="text" name="philhealth_number" className="form-input" placeholder="XX-XXXXXXXXX-X" maxLength="14" value={formData.philhealth_number} onChange={handleChange} /></div>
                         <div className="input-group"><label>Known Allergies</label><input type="text" name="allergies" className="form-input" value={formData.allergies} onChange={handleChange} /></div>
                     </div>
                 </div>

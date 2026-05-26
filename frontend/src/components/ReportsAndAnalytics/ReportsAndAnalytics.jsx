@@ -30,6 +30,7 @@ import {
     Cell,
     Legend,
 } from 'recharts';
+import { getDiseaseColor, getTopDiseaseLegendPayload } from '../../utils/diseaseChart.js';
 import '../../assets/css/ReportsAndAnalytics.css';
 import '../../assets/css/Patients.css';
 
@@ -44,7 +45,6 @@ const CHART_ANIM = {
 const LINE_COLOR = '#2d6a4f';
 const SEX_COLORS = { Male: '#3b82f6', Female: '#ec4899' };
 const ROLE_COLORS = { Admin: '#7c3aed', Doctor: '#3b82f6', Nurse: '#ec4899' };
-const DISEASE_COLORS = ['#3b82f6', '#2d6a4f', '#7c3aed', '#ec4899', '#f59e0b', '#06b6d4', '#84cc16', '#6366f1'];
 
 function formatReportDate(isoDate) {
     if (!isoDate) return '—';
@@ -80,6 +80,36 @@ function SummaryCard({ value, label, iconClass, Icon }) {
 
 function EmptyChart({ message }) {
     return <div className="reports-empty-chart">{message}</div>;
+}
+
+function DiseaseLegend({ diseases }) {
+    const payload = getTopDiseaseLegendPayload(diseases);
+
+    return (
+        <ul className="recharts-default-legend" style={{ padding: 0, margin: 0, textAlign: 'center' }}>
+            {payload.map((entry) => (
+                <li
+                    key={entry.value}
+                    className="recharts-legend-item legend-item-0"
+                    style={{ display: 'inline-block', marginRight: 10 }}
+                >
+                    <span
+                        className="recharts-legend-icon"
+                        style={{
+                            display: 'inline-block',
+                            width: 10,
+                            height: 10,
+                            backgroundColor: entry.color,
+                            marginRight: 4,
+                        }}
+                    />
+                    <span className="recharts-legend-item-text" style={{ color: entry.color }}>
+                        {entry.value}
+                    </span>
+                </li>
+            ))}
+        </ul>
+    );
 }
 
 export default function ReportsAndAnalytics() {
@@ -312,12 +342,15 @@ export default function ReportsAndAnalytics() {
                                         paddingAngle={2}
                                         {...CHART_ANIM}
                                     >
-                                        {diseaseChartData.map((entry, index) => (
-                                            <Cell key={entry.name} fill={DISEASE_COLORS[index % DISEASE_COLORS.length]} />
+                                        {diseaseChartData.map((entry) => (
+                                            <Cell key={entry.name} fill={getDiseaseColor(entry.name)} />
                                         ))}
                                     </Pie>
                                     <Tooltip />
-                                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                                    <Legend
+                                        content={() => <DiseaseLegend diseases={diseaseChartData} />}
+                                        wrapperStyle={{ fontSize: 11 }}
+                                    />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>

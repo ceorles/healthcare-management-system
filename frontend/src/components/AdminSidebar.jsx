@@ -4,7 +4,7 @@ import axios from 'axios';
 import {
     LayoutDashboard, User, Users, Shield,
     FileText, Folder, MapPin, BarChart3, LogOut,
-    Settings
+    Settings, Calendar
 } from 'lucide-react';
 import logo from '../assets/images/smhc_logo.png';
 
@@ -24,6 +24,7 @@ const SIDEBAR_SECTIONS = {
                 { to: '/admin/patients', label: 'Patients', Icon: User },
                 { to: '/admin/staff', label: 'Staff Accounts', Icon: Users },
                 { to: '/admin/audit-logs', label: 'Audit Logs', Icon: Shield },
+                { to: '/admin/appointments', label: 'Appointments', Icon: Calendar },
                 { to: '/admin/referrals', label: 'Referrals', Icon: FileText },
                 { to: '/admin/programs', label: 'Programs', Icon: Folder },
             ],

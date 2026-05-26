@@ -13,6 +13,8 @@ class ReferralSerializer(serializers.ModelSerializer):
 
     referred_by_name = serializers.SerializerMethodField()
     deleted_by_name = serializers.SerializerMethodField()
+    integrity_status = serializers.SerializerMethodField()
+    hash_short = serializers.SerializerMethodField()
 
     def get_referred_by_name(self, obj):
         if not obj.referred_by:
@@ -24,10 +26,18 @@ class ReferralSerializer(serializers.ModelSerializer):
             return None
         return obj.deleted_by.fullname or obj.deleted_by.username
 
+    def get_integrity_status(self, obj):
+        return 'Verified' if obj.verify_integrity() else 'Tampered'
+
+    def get_hash_short(self, obj):
+        if not obj.record_hash:
+            return ''
+        return f'{obj.record_hash[:16]}...'
+
     class Meta:
         model = Referral
         fields = '__all__'
         read_only_fields = (
             'referral_code', 'referred_by', 'created_at', 'updated_at',
-            'is_deleted', 'deleted_at', 'deleted_by',
+            'is_deleted', 'deleted_at', 'deleted_by', 'record_hash',
         )

@@ -163,6 +163,23 @@
     color: var(--green);
     font-weight: 700;
 }
+.integrity-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.integrity-badge.verified {
+    background: #dcfce7;
+    color: #15803d;
+}
+.integrity-badge.tampered {
+    background: #fef2f2;
+    color: #b91c1c;
+}
 .action-btns {
     display: flex;
     gap: 6px;
@@ -304,6 +321,7 @@
     font-family: var(--font-body);
     font-size: 13px;
 }
+
 .form-input:disabled {
     background: var(--bg);
     color: var(--muted);

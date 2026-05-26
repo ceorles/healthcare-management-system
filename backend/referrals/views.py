@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from .models import Referral
@@ -106,37 +107,53 @@ class ReferralViewSet(viewsets.ModelViewSet):
         if not code:
             return Response({'detail': 'Query parameter "code" is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            referral = Referral.objects.select_related('patient').get(referral_code__iexact=code, is_deleted=False)
-        except Referral.DoesNotExist:
-            return Response({'detail': 'Referral not found.'}, status=status.HTTP_404_NOT_FOUND)
+        with transaction.atomic():
+            try:
+                referral = (
+                    Referral.objects
+                    .select_for_update()
+                    .get(referral_code__iexact=code, is_deleted=False)
+                )
+            except Referral.DoesNotExist:
+                return Response({'detail': 'Referral not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Pending → Completed when QR is scanned at the receiving facility
-        if referral.status == 'pending':
+            if referral.status != 'pending':
+                audit_log(
+                    request,
+                    'qr_scan',
+                    'Referral',
+                    f'Blocked reused QR referral scan: {referral.referral_code}',
+                    target_id=referral.id,
+                )
+                return Response(
+                    {'detail': 'This referral slip has already been used. Please get a new referral slip.'},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
             referral.status = 'completed'
             referral.save(update_fields=['status', 'updated_at'])
-        audit_log(
-            request,
-            'qr_scan',
-            'Referral',
-            f'Scanned QR referral: {referral.referral_code}',
-            target_id=referral.id,
-        )
+            audit_log(
+                request,
+                'qr_scan',
+                'Referral',
+                f'Scanned QR referral: {referral.referral_code}',
+                target_id=referral.id,
+            )
 
-        has_patient = referral.patient_id is not None
-        payload = {
-            'referral_id': referral.id,
-            'referral_code': referral.referral_code,
-            'status': referral.status,
-            'has_registered_patient': has_patient,
-            'patient': PatientSerializer(referral.patient).data if has_patient else None,
-            'walkin_prefill': None if has_patient else {
-                'walkin_name': referral.walkin_name,
-                'walkin_age': referral.walkin_age,
-                'walkin_address': referral.walkin_address,
-                'barangay': referral.barangay,
-            },
-        }
+            has_patient = referral.patient_id is not None
+            payload = {
+                'referral_id': referral.id,
+                'referral_code': referral.referral_code,
+                'status': referral.status,
+                'has_registered_patient': has_patient,
+                'patient': PatientSerializer(referral.patient).data if has_patient else None,
+                'walkin_prefill': None if has_patient else {
+                    'walkin_name': referral.walkin_name,
+                    'walkin_age': referral.walkin_age,
+                    'walkin_address': referral.walkin_address,
+                    'barangay': referral.barangay,
+                },
+            }
         return Response(payload)
 
     @action(detail=False, methods=['get'], url_path='trash')

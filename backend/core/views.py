@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .analytics import build_dashboard_payload
 from .audit import audit_log
+from .integrity import verify_audit_chain
 from .models import HealthAlert, AuditLog, ClinicInfo, CoreValue, ServiceCategory, ClinicSchedule
 from .serializers import HealthAlertSerializer, AuditLogSerializer, ClinicInfoSerializer, CoreValueSerializer, ServiceCategorySerializer, ClinicScheduleSerializer
 
@@ -108,6 +109,9 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
         target_type = request.data.get('target_type') or 'System'
         target_id = request.data.get('target_id') or ''
         description = request.data.get('description') or ''
+        metadata = request.data.get('metadata') or {}
+        if not isinstance(metadata, dict):
+            metadata = {}
 
         if action_name not in {'view', 'create', 'update', 'delete', 'login', 'logout', 'print', 'qr_scan', 'restore', 'export'}:
             return Response({'detail': 'Invalid audit action.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -118,8 +122,13 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
             target_type,
             description,
             target_id=target_id,
+            metadata=metadata,
         )
         return Response(AuditLogSerializer(log).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='verify-integrity')
+    def verify_integrity(self, request):
+        return Response(verify_audit_chain(), status=status.HTTP_200_OK)
 
 # Landing Page
 # CUSTOM PERMISSION: Anyone can GET, but only Admins can POST/PUT/DELETE
