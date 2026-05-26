@@ -21,3 +21,24 @@ export function isValidPhilHealthNumber(value) {
 export function normalizeBloodType(value) {
     return BLOOD_TYPES.includes(value) ? value : 'N/A';
 }
+
+export function normalizePhoneNumber(value) {
+    return String(value || '').replace(/\D/g, '').slice(0, 11);
+}
+
+export function formatPhoneNumber(value) {
+    const digits = normalizePhoneNumber(value);
+    const first = digits.slice(0, 4);
+    const second = digits.slice(4, 7);
+    const third = digits.slice(7, 11);
+
+    if (digits.length <= 4) return first;
+    if (digits.length <= 7) return `${first}-${second}`;
+    return `${first}-${second}-${third}`;
+}
+
+export function isValidPhoneNumber(value, required = false) {
+    const digits = normalizePhoneNumber(value);
+    if (!digits) return !required;
+    return digits.length === 11 && digits.startsWith('0');
+}

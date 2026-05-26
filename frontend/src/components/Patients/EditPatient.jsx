@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Clock, ChevronLeft } from 'lucide-react';
 import { formatPatientAge, getTodayDateInputValue, isFutureBirthDate } from '../../utils/age.js';
-import { BLOOD_TYPES, formatPhilHealthNumber, isValidPhilHealthNumber, normalizeBloodType } from '../../utils/patientForm.js';
+import {
+    BLOOD_TYPES,
+    formatPhilHealthNumber,
+    formatPhoneNumber,
+    isValidPhilHealthNumber,
+    isValidPhoneNumber,
+    normalizeBloodType,
+    normalizePhoneNumber,
+} from '../../utils/patientForm.js';
 import '../../assets/css/Patients.css';
 
 const BARANGAYS = [
@@ -26,14 +34,14 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
         date_of_birth: patient.date_of_birth || '',
         sex: patient.sex || 'M',
         civil_status: patient.civil_status || 'single',
-        contact_number: patient.contact_number || '',
+        contact_number: formatPhoneNumber(patient.contact_number),
         blood_type: normalizeBloodType(patient.blood_type),
         address: patient.address || '',
         barangay: patient.barangay || 'Poblacion 1',
         guardian_name: patient.guardian_name || '',
-        guardian_contact_info: patient.guardian_contact_info || '',
+        guardian_contact_info: formatPhoneNumber(patient.guardian_contact_info),
         emergency_contact_name: patient.emergency_contact_name || '',
-        emergency_contact_number: patient.emergency_contact_number || '',
+        emergency_contact_number: formatPhoneNumber(patient.emergency_contact_number),
         philhealth_number: patient.philhealth_number || '',
         allergies: patient.allergies || ''
     });
@@ -47,7 +55,11 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: name === 'philhealth_number' ? formatPhilHealthNumber(value) : value,
+            [name]: name === 'philhealth_number'
+                ? formatPhilHealthNumber(value)
+                : ['contact_number', 'guardian_contact_info', 'emergency_contact_number'].includes(name)
+                    ? formatPhoneNumber(value)
+                    : value,
         });
     };
 
@@ -61,8 +73,22 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
             alert('PhilHealth Number must follow this format: XX-XXXXXXXXX-X');
             return;
         }
+        if (
+            !isValidPhoneNumber(formData.contact_number)
+            || !isValidPhoneNumber(formData.guardian_contact_info)
+            || !isValidPhoneNumber(formData.emergency_contact_number)
+        ) {
+            alert('Phone numbers must be 11 digits, start with 0, and follow this format: 09XX-XXX-XXXX');
+            return;
+        }
         try {
-            await axios.put(`http://127.0.0.1:8000/api/patients/${patient.id}/`, formData, {
+            const payload = {
+                ...formData,
+                contact_number: normalizePhoneNumber(formData.contact_number),
+                guardian_contact_info: normalizePhoneNumber(formData.guardian_contact_info),
+                emergency_contact_number: normalizePhoneNumber(formData.emergency_contact_number),
+            };
+            await axios.put(`http://127.0.0.1:8000/api/patients/${patient.id}/`, payload, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
             });
             alert("Patient Updated Successfully!");
@@ -119,7 +145,7 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
                     </div>
 
                     <div className="form-grid grid-2">
-                        <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" value={formData.contact_number} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.contact_number} onChange={handleChange} /></div>
                         <div className="input-group"><label>Blood Type</label>
                             <select name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange}>
                                 {BLOOD_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
@@ -142,12 +168,12 @@ export default function EditPatient({ patient, onCancel, onSaveSuccess }) {
 
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Guardian&apos;s Name</label><input type="text" name="guardian_name" className="form-input" value={formData.guardian_name} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Guardian&apos;s Contact Info</label><input type="text" name="guardian_contact_info" className="form-input" value={formData.guardian_contact_info} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Guardian&apos;s Contact Info</label><input type="text" name="guardian_contact_info" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.guardian_contact_info} onChange={handleChange} /></div>
                     </div>
 
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Emergency Contact Name</label><input type="text" name="emergency_contact_name" className="form-input" value={formData.emergency_contact_name} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Emergency Contact Number</label><input type="text" name="emergency_contact_number" className="form-input" value={formData.emergency_contact_number} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Emergency Contact Number</label><input type="text" name="emergency_contact_number" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.emergency_contact_number} onChange={handleChange} /></div>
                     </div>
 
                     <div className="form-grid grid-2 form-grid--last">

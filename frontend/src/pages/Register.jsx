@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import "../assets/css/Register.css";
 import logo from "../assets/images/smhc_logo.png";
 import { BARANGAYS, roleRequiresBarangay } from '../constants/barangays.js';
+import { formatPhoneNumber, isValidPhoneNumber, normalizePhoneNumber } from '../utils/patientForm.js';
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -21,7 +22,8 @@ function Register() {
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: name === 'phone_number' ? formatPhoneNumber(value) : value });
     };
 
     const handleSubmit = async (e) => {
@@ -33,8 +35,18 @@ function Register() {
             return;
         }
 
+        if (!isValidPhoneNumber(formData.phone_number, true)) {
+            setIsError(true);
+            setMessage('Error: Phone number must be 11 digits, start with 0, and follow this format: 09XX-XXX-XXXX');
+            return;
+        }
+
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/users/register/', formData);
+            const payload = {
+                ...formData,
+                phone_number: normalizePhoneNumber(formData.phone_number),
+            };
+            const response = await axios.post('http://127.0.0.1:8000/api/users/register/', payload);
             setIsError(false);
             setMessage(
                 response.data?.message
@@ -84,7 +96,7 @@ function Register() {
 
                     <div className="register-field">
                         <label className="register-label">Phone Number</label>
-                        <input type="text" name="phone_number" placeholder="09xx-xxx-xxxx" className="register-input" onChange={handleChange} required/>
+                        <input type="text" name="phone_number" placeholder="09XX-XXX-XXXX" className="register-input" maxLength="13" value={formData.phone_number} onChange={handleChange} required/>
                     </div>
                 </div>
 

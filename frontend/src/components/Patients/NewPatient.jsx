@@ -3,7 +3,14 @@ import axios from 'axios';
 import { Clock, ChevronLeft } from 'lucide-react';
 import { formatPatientAge, getTodayDateInputValue, isFutureBirthDate } from '../../utils/age.js';
 import { buildPatientFormFromWalkinPrefill } from '../../utils/patientPrefill.js';
-import { BLOOD_TYPES, formatPhilHealthNumber, isValidPhilHealthNumber } from '../../utils/patientForm.js';
+import {
+    BLOOD_TYPES,
+    formatPhilHealthNumber,
+    formatPhoneNumber,
+    isValidPhilHealthNumber,
+    isValidPhoneNumber,
+    normalizePhoneNumber,
+} from '../../utils/patientForm.js';
 import '../../assets/css/Patients.css';
 
 const EMPTY_FORM = {
@@ -31,13 +38,19 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
 
     const [formData, setFormData] = useState(() => {
         const fromPrefill = buildPatientFormFromWalkinPrefill(prefill);
-        return fromPrefill ? { ...EMPTY_FORM, ...fromPrefill } : { ...EMPTY_FORM };
+        return fromPrefill
+            ? { ...EMPTY_FORM, ...fromPrefill, contact_number: formatPhoneNumber(fromPrefill.contact_number) }
+            : { ...EMPTY_FORM };
     });
 
     useEffect(() => {
         const fromPrefill = buildPatientFormFromWalkinPrefill(prefill);
         if (fromPrefill) {
-            setFormData((prev) => ({ ...prev, ...fromPrefill }));
+            setFormData((prev) => ({
+                ...prev,
+                ...fromPrefill,
+                contact_number: formatPhoneNumber(fromPrefill.contact_number),
+            }));
         }
     }, [prefill]);
 
@@ -50,7 +63,11 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: name === 'philhealth_number' ? formatPhilHealthNumber(value) : value,
+            [name]: name === 'philhealth_number'
+                ? formatPhilHealthNumber(value)
+                : ['contact_number', 'guardian_contact_info', 'emergency_contact_number'].includes(name)
+                    ? formatPhoneNumber(value)
+                    : value,
         });
     };
 
@@ -64,10 +81,24 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
             alert('PhilHealth Number must follow this format: XX-XXXXXXXXX-X');
             return;
         }
+        if (
+            !isValidPhoneNumber(formData.contact_number)
+            || !isValidPhoneNumber(formData.guardian_contact_info)
+            || !isValidPhoneNumber(formData.emergency_contact_number)
+        ) {
+            alert('Phone numbers must be 11 digits, start with 0, and follow this format: 09XX-XXX-XXXX');
+            return;
+        }
         try {
+            const cleanFormData = {
+                ...formData,
+                contact_number: normalizePhoneNumber(formData.contact_number),
+                guardian_contact_info: normalizePhoneNumber(formData.guardian_contact_info),
+                emergency_contact_number: normalizePhoneNumber(formData.emergency_contact_number),
+            };
             const payload = prefill?.referral_id
-                ? { ...formData, referral_id: prefill.referral_id }
-                : formData;
+                ? { ...cleanFormData, referral_id: prefill.referral_id }
+                : cleanFormData;
             const response = await axios.post('http://127.0.0.1:8000/api/patients/', payload, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
             });
@@ -131,7 +162,7 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
                     </div>
 
                     <div className="form-grid grid-2">
-                        <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" value={formData.contact_number} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Contact Number</label><input type="text" name="contact_number" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.contact_number} onChange={handleChange} /></div>
                         <div className="input-group"><label>Blood Type</label>
                             <select name="blood_type" className="form-input" value={formData.blood_type} onChange={handleChange}>
                                 {BLOOD_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
@@ -154,12 +185,12 @@ export default function NewPatient({ onCancel, onSaveSuccess, prefill = null }) 
                     
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Guardian&apos;s Name</label><input type="text" name="guardian_name" className="form-input" value={formData.guardian_name} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Guardian&apos;s Contact Info</label><input type="text" name="guardian_contact_info" className="form-input" value={formData.guardian_contact_info} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Guardian&apos;s Contact Info</label><input type="text" name="guardian_contact_info" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.guardian_contact_info} onChange={handleChange} /></div>
                     </div>
 
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Emergency Contact Name</label><input type="text" name="emergency_contact_name" className="form-input" value={formData.emergency_contact_name} onChange={handleChange} /></div>
-                        <div className="input-group"><label>Emergency Contact Number</label><input type="text" name="emergency_contact_number" className="form-input" value={formData.emergency_contact_number} onChange={handleChange} /></div>
+                        <div className="input-group"><label>Emergency Contact Number</label><input type="text" name="emergency_contact_number" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.emergency_contact_number} onChange={handleChange} /></div>
                     </div>
 
                     <div className="form-grid grid-2 form-grid--last">

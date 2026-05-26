@@ -3,6 +3,7 @@ import axios from 'axios';
 import { UserPlus, Clock } from 'lucide-react';
 import '../../assets/css/Patients.css';
 import { BARANGAYS, roleRequiresBarangay } from '../../constants/barangays.js';
+import { formatPhoneNumber, isValidPhoneNumber, normalizePhoneNumber } from '../../utils/patientForm.js';
 
 export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -18,7 +19,8 @@ export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: name === 'phone_number' ? formatPhoneNumber(value) : value });
     };
 
     const handleSubmit = async (e) => {
@@ -29,6 +31,12 @@ export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
             finalData.barangay = '';
         }
 
+        if (!isValidPhoneNumber(finalData.phone_number)) {
+            alert('Phone number must be 11 digits, start with 0, and follow this format: 09XX-XXX-XXXX');
+            return;
+        }
+
+        finalData.phone_number = normalizePhoneNumber(finalData.phone_number);
         finalData.confirm_password = finalData.password;
 
         try {
@@ -66,7 +74,7 @@ export default function NewStaffAccount({ onCancel, onSaveSuccess }) {
 
                     <div className="form-grid grid-2">
                         <div className="input-group"><label>Email</label><input type="email" name="email" className="form-input" required onChange={handleChange} /></div>
-                        <div className="input-group"><label>Phone Number</label><input type="text" name="phone_number" className="form-input" onChange={handleChange} /></div>
+                        <div className="input-group"><label>Phone Number</label><input type="text" name="phone_number" className="form-input" placeholder="09XX-XXX-XXXX" maxLength="13" value={formData.phone_number} onChange={handleChange} /></div>
                     </div>
 
                     <div className="form-grid grid-2">
