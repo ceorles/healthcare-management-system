@@ -69,7 +69,7 @@ function Register() {
             <div className="register-card">
             <img src={logo} alt="Logo" className="register-logo" />
             <h2 className="register-title">Create Your Account</h2>
-            <p className="register-subtitle">Register to continue</p>
+            <p className="register-subtitle">Sariaya Municipal Health Center - Staff Registration</p>
 
             {message && (
                 <div className={`register-message ${isError ? "error" : "success"}`}>
@@ -138,10 +138,10 @@ function Register() {
                 <input type="password" name="confirm_password"  placeholder="Confirm Password" className="register-input" onChange={handleChange} required/>
                 </div>
 
-                <button type="submit" className="register-btn">Register</button>
+                <button type="submit" className="register-btn">Sign Up</button>
             </form>
 
-            <p className="register-footer">Already have an account? <a href="/login">Login here</a></p>
+            <p className="register-footer">Already have an account?? <a href="/login">Sign In</a></p>
             </div>
         </div>
     );

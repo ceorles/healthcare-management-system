@@ -67,8 +67,8 @@ function Login() {
             <div className="login-card">
             <img src={logo} alt="Logo" className="login-logo" />
 
-            <h2 className="login-title">Welcome Back</h2>
-            <p className="login-subtitle">Login to continue your account</p>
+            <h2 className="login-title">Sariaya Municipal Health Center</h2>
+            <p className="login-subtitle">Smart Health Information System</p>
 
             {error && <div className="login-error">{error}</div>}
 
@@ -97,9 +97,9 @@ function Login() {
                     required
                 />
                 </div>
-                <button type="submit" className="login-btn">Login</button>
+                <button type="submit" className="login-btn">Sign In</button>
             </form>
-            <p className="login-footer">Don't have an account? <a href="/register">Register here</a></p>
+            <p className="login-footer">Don't have an account yet? <a href="/register">Sign Up</a></p>
             </div>
         </div>
     );
